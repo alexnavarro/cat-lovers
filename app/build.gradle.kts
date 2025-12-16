@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 android {
@@ -67,6 +70,12 @@ dependencies {
     implementation(libs.androidx.material.icons)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+
+    implementation(libs.kotlinx.serialization.core)
+
+    // Dependency injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
 
     testImplementation(libs.junit)

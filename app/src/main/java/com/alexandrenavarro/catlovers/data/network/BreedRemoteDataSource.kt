@@ -3,11 +3,12 @@ package com.alexandrenavarro.catlovers.data.network
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
-class BreedRemoteDataSource constructor(
+class BreedRemoteDataSource @Inject constructor(
     private val breedApi: BreedApi,
-){
+) {
 
     suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>> = withContext(Dispatchers.IO) {
         try {
@@ -19,7 +20,7 @@ class BreedRemoteDataSource constructor(
 
             Result.Success(response.body() ?: emptyList())
 
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             Result.NetworkError(e)
         }
     }

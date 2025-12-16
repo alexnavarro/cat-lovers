@@ -3,6 +3,8 @@ package com.alexandrenavarro.catlovers.data.network
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
 import io.mockk.coEvery
 import io.mockk.mockk
+import junit.framework.TestCase.assertSame
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -49,4 +51,30 @@ class BreedRemoteDataSourceTest {
         val result = sut.fetchBreeds()
         assert(result is Result.Error)
     }
+
+    @Test
+    fun `given fetchBreeds call is called when there is an empty response then return a success`() =
+        runTest {
+            coEvery { response.isSuccessful } returns true
+            coEvery { response.body() } returns emptyList()
+            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+
+            val result = sut.fetchBreeds() as Result.Success
+
+            assertTrue(result.data.isEmpty())
+        }
+
+    @Test
+    fun `given fetch call is called twice when there is a valid response then should call the api only once`() =
+        runTest {
+            val breeds = listOf(NetworkBreedPreview("1", "name", mockk()))
+
+            coEvery { response.isSuccessful } returns true
+            coEvery { response.body() } returns breeds
+            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+
+            val result = sut.fetchBreeds() as Result.Success
+
+            assertSame(breeds, result.data)
+        }
 }

@@ -17,7 +17,7 @@ class BreedRemoteDataSource constructor(
                 return@withContext Result.Error(Exception(response.message()))
             }
 
-            Result.Success(response.body()!!)
+            Result.Success(response.body() ?: emptyList())
 
         }catch (e: Exception) {
             Result.NetworkError(e)

@@ -30,4 +30,23 @@ class BreedRemoteDataSourceTest {
             val result = sut.fetchBreeds()
             assert(result is Result.NetworkError)
         }
+
+    @Test
+    fun `given fetchBreeds call is called when there is a unknown error then return a network error`() =
+        runTest {
+            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } throws Exception()
+
+            val result = sut.fetchBreeds()
+            assert(result is Result.NetworkError)
+        }
+
+    @Test
+    fun `given fetchBreeds call is called when there is an error on response then return an error`() = runTest {
+        coEvery { response.isSuccessful } returns false
+        coEvery { response.message() } returns "Error error"
+        coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+
+        val result = sut.fetchBreeds()
+        assert(result is Result.Error)
+    }
 }

@@ -12,6 +12,11 @@ class BreedRemoteDataSource constructor(
     suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>> = withContext(Dispatchers.IO) {
         try {
             val response = breedApi.fetchBreeds(limit = 10, page = 0)
+
+            if (!response.isSuccessful) {
+                return@withContext Result.Error(Exception(response.message()))
+            }
+
             Result.Success(response.body()!!)
 
         }catch (e: Exception) {

@@ -6,22 +6,28 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
-class BreedRemoteDataSource @Inject constructor(
+interface BreedRemoteDataSource {
+
+    suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>>
+}
+
+internal class DefaultBreedRemoteDataSource constructor(
     private val breedApi: BreedApi,
-) {
+) : BreedRemoteDataSource {
 
-    suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>> = withContext(Dispatchers.IO) {
-        try {
-            val response = breedApi.fetchBreeds(limit = 10, page = 0)
+    override suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = breedApi.fetchBreeds(limit = 10, page = 0)
 
-            if (!response.isSuccessful) {
-                return@withContext Result.Error(Exception(response.message()))
+                if (!response.isSuccessful) {
+                    return@withContext Result.Error(Exception(response.message()))
+                }
+
+                Result.Success(response.body() ?: emptyList())
+
+            } catch (e: Exception) {
+                Result.NetworkError(e)
             }
-
-            Result.Success(response.body() ?: emptyList())
-
-        } catch (e: Exception) {
-            Result.NetworkError(e)
         }
-    }
 }

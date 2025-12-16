@@ -12,16 +12,16 @@ import retrofit2.Response
 import java.io.IOException
 
 
-class BreedRemoteDataSourceTest {
+class DefaultBreedRemoteDataSourceTest {
 
     private val breedApi = mockk<BreedApi>()
     private val response: Response<List<NetworkBreedPreview>> = mockk()
 
-    private lateinit var sut: BreedRemoteDataSource
+    private lateinit var sut: DefaultBreedRemoteDataSource
 
     @Before
     fun setup() {
-        sut = BreedRemoteDataSource(breedApi)
+        sut = DefaultBreedRemoteDataSource(breedApi)
     }
 
     @Test

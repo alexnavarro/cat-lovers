@@ -3,6 +3,8 @@ package com.alexandrenavarro.catlovers.data.network.di
 import com.alexandrenavarro.catlovers.BuildConfig
 import com.alexandrenavarro.catlovers.data.network.AuthHeaderInterceptor
 import com.alexandrenavarro.catlovers.data.network.BreedApi
+import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.DefaultBreedRemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,4 +46,9 @@ object NetworkDiModule {
     @Singleton
     fun provideBreedsApiService(retrofit: Retrofit): BreedApi =
         retrofit.create(BreedApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideBreedRemoteDataSource(breedApi: BreedApi): BreedRemoteDataSource =
+        DefaultBreedRemoteDataSource(breedApi)
 }

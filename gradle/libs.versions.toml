@@ -16,6 +16,7 @@ kotlinSerialization = "2.1.21"
 kotlinxSerializationCore = "1.8.1"
 hilt = "2.57.2"
 turbine = "1.2.0"
+coil = "3.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,9 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt" }
 
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+coil-compose =  { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network =  { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

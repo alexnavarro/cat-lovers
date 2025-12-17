@@ -1,7 +1,7 @@
 package com.alexandrenavarro.catlovers.data.repository
 
 import app.cash.turbine.test
-import com.alexandrenavarro.catlovers.data.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedImage
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview

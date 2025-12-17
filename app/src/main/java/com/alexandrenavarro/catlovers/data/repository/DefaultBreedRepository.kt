@@ -1,6 +1,6 @@
 package com.alexandrenavarro.catlovers.data.repository
 
-import com.alexandrenavarro.catlovers.data.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.toExternalModel

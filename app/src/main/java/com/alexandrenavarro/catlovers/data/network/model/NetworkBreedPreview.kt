@@ -1,6 +1,6 @@
 package com.alexandrenavarro.catlovers.data.network.model
 
-import com.alexandrenavarro.catlovers.data.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.google.gson.annotations.SerializedName
 
 data class NetworkBreedPreview(

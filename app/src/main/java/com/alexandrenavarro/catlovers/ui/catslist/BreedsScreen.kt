@@ -1,5 +1,6 @@
 package com.alexandrenavarro.catlovers.ui.catslist
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -22,17 +25,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -52,6 +63,7 @@ import coil3.request.crossfade
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
+import kotlin.text.append
 
 @Composable
 fun BreedsScreen(
@@ -72,12 +84,29 @@ fun BreedsScreen(
     modifier: Modifier = Modifier,
     breeds: LazyPagingItems<BreedPreview>,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val appendError = breeds.loadState.append as? LoadState.Error
+    LaunchedEffect(appendError) {
+        appendError?.let {
+            Log.d("Paging", "append = ${breeds.loadState.append}")
+            val result = snackbarHostState.showSnackbar(
+                message = "Error loading more",
+                actionLabel = "Try again"
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                breeds.retry()
+            }
+        }
+    }
+
     BreedsScreenBackground(
         modifier = modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.navigationBars),
     ) {
         Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
             topBar = {
                 TopAppBar(
@@ -92,6 +121,17 @@ fun BreedsScreen(
                     .fillMaxSize(),
                 breeds = breeds,
                 onFavoriteClick = {}
+            )
+        }
+
+        if (breeds.loadState.refresh is LoadState.Loading) {
+            FullScreenLoading()
+        }
+
+        val refreshError = breeds.loadState.refresh as? LoadState.Error
+        if (refreshError != null && breeds.itemCount == 0) {
+            FullScreenError(
+                onRetry = { breeds.retry() }
             )
         }
     }
@@ -138,6 +178,12 @@ fun BreedsGrid(
                     breed = item,
                     onFavoriteClick = onFavoriteClick
                 )
+            }
+        }
+
+        if (breeds.loadState.append is LoadState.Loading) {
+            item {
+                FooterLoading()
             }
         }
     }
@@ -293,4 +339,46 @@ private fun BreedsScreenBackground(
 private fun <T : Any> List<T>.collectAsMutableLazyPagingItems(): LazyPagingItems<T> {
     val flow = flowOf(PagingData.from(this))
     return flow.collectAsLazyPagingItems()
+}
+
+@Composable
+fun FullScreenError(
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Error loading breeds")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = onRetry) {
+                Text("Try again")
+            }
+        }
+    }
+}
+
+@Composable
+fun FooterLoading() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator(strokeWidth = 2.dp)
+    }
+}
+
+@Composable
+fun FullScreenLoading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
 }

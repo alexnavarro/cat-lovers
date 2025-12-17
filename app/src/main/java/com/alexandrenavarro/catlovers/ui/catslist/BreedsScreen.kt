@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -25,15 +24,15 @@ import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,18 +42,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
+import kotlinx.coroutines.flow.flowOf
 
 @Composable
 fun BreedsScreen(
     modifier: Modifier = Modifier,
     viewModel: BreedsScreenViewModel = hiltViewModel()
 ) {
-    val breeds by viewModel.breeds.collectAsState()
+    val breeds = viewModel.breeds.collectAsLazyPagingItems()
 
     BreedsScreen(
         modifier = modifier,
@@ -62,10 +66,11 @@ fun BreedsScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BreedsScreen(
     modifier: Modifier = Modifier,
-    breeds: List<BreedPreview>,
+    breeds: LazyPagingItems<BreedPreview>,
 ) {
     BreedsScreenBackground(
         modifier = modifier
@@ -74,6 +79,12 @@ fun BreedsScreen(
     ) {
         Scaffold(
             contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Cat Lovers") }
+                )
+            }
+
         ) { padding ->
             BreedsGrid(
                 modifier = Modifier
@@ -95,13 +106,13 @@ fun BreedsScreenPreview() {
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
             id = "abys$idx",
-            isFavorite = false
+//            isFavorite = false
         )
     }
 
     CatLoversTheme {
         BreedsScreen(
-            breeds = breeds,
+            breeds = breeds.collectAsMutableLazyPagingItems(),
         )
     }
 
@@ -110,7 +121,7 @@ fun BreedsScreenPreview() {
 @Composable
 fun BreedsGrid(
     modifier: Modifier = Modifier,
-    breeds: List<BreedPreview>,
+    breeds: LazyPagingItems<BreedPreview>,
     onFavoriteClick: (id: String) -> Unit
 ) {
     LazyVerticalGrid(
@@ -120,11 +131,14 @@ fun BreedsGrid(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(breeds) { breed ->
-            CatCard(
-                breed = breed,
-                onFavoriteClick = onFavoriteClick,
-            )
+        items(count = breeds.itemCount, key = breeds.itemKey { it.id }) { index ->
+            val breed = breeds[index]
+            breed?.let { item ->
+                CatCard(
+                    breed = item,
+                    onFavoriteClick = onFavoriteClick
+                )
+            }
         }
     }
 }
@@ -138,13 +152,13 @@ fun BreedsGridPreview() {
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
             id = "abys$idx",
-            isFavorite = false
+//            isFavorite = false
         )
     }
 
     CatLoversTheme {
         BreedsGrid(
-            breeds = breeds,
+            breeds = breeds.collectAsMutableLazyPagingItems(),
             onFavoriteClick = {}
         )
     }
@@ -221,7 +235,7 @@ fun CatCard(
 
                     if (breed.imageId?.isNotEmpty() == true) {
                         FavoriteButton(
-                            isFavorite = breed.isFavorite,
+                            isFavorite = false,//TODO FIX IT
                             onClick = { onFavoriteClick(breed.imageId) }
                         )
                     }
@@ -241,7 +255,7 @@ fun CatCardPreview() {
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 imageId = "0XYvRd7oD",
                 id = "abys",
-                isFavorite = false
+//                isFavorite = false
             )
         )
     }
@@ -273,4 +287,10 @@ private fun BreedsScreenBackground(
     ) {
         content()
     }
+}
+
+@Composable
+private fun <T : Any> List<T>.collectAsMutableLazyPagingItems(): LazyPagingItems<T> {
+    val flow = flowOf(PagingData.from(this))
+    return flow.collectAsLazyPagingItems()
 }

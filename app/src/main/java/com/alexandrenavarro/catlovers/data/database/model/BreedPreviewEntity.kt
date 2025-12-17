@@ -23,5 +23,5 @@ fun BreedPreviewEntity.asExternalModel() = BreedPreview(
     name = name,
     imageUrl = imageUrl,
     imageId = imageId,
-    isFavorite = false
+//    isFavorite = false//TODO FIX IT
 )

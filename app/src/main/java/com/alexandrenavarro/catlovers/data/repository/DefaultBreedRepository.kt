@@ -1,39 +1,28 @@
 package com.alexandrenavarro.catlovers.data.repository
 
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
-import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 
 internal class DefaultBreedRepository @Inject constructor(
-    private val breedRemoteDataSource: BreedRemoteDataSource
+    private val breedRemoteDataSource: BreedRemoteDataSource,
+    private val breedDataBase: BreedsDatabase,
 ): BreedRepository {
 
-    private val breedsFlow = MutableStateFlow<List<BreedPreview>>(emptyList())
-
-    override suspend fun refreshBreeds(): Result<Unit> {
-        when (val result = breedRemoteDataSource.fetchBreeds()) {
-            is Result.Success -> {
-                breedsFlow.value = result.data.map { BreedPreview(
-                    id = it.id,
-                    name = it.name,
-                    imageUrl = it.image?.imageUrl,
-                    imageId = it.image?.id,
-                    isFavorite = false,
-                ) }
-                return Result.Success(Unit)
-            }
-            is Result.Error -> {
-                return Result.Error(result.exception)
-            }
-            is Result.NetworkError -> {
-                return Result.NetworkError(result.exception)
-            }
-        }
-    }
-
-    override fun getBreeds(): Flow<List<BreedPreview>> = breedsFlow
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getBreeds(): Flow<PagingData<BreedPreview>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false
+            ),
+            remoteMediator = BreedRemoteMediator(breedRemoteDataSource, breedDataBase),
+            pagingSourceFactory = { breedDataBase.breedsDao().pagingSource() }
+        ).flow
 }

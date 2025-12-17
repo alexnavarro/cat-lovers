@@ -6,21 +6,21 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
-import com.alexandrenavarro.catlovers.data.database.model.BreedPreviewEntity
 import com.alexandrenavarro.catlovers.data.database.model.BreedRemoteKey
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
+import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 
 @OptIn(ExperimentalPagingApi::class)
 internal class BreedRemoteMediator (
     private val breedRemoteDataSource: BreedRemoteDataSource,
     private val breedDataBase: BreedsDatabase,
-    ): RemoteMediator<Int, BreedPreviewEntity>() {
+    ): RemoteMediator<Int, BreedPreview>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, BreedPreviewEntity>
+        state: PagingState<Int, BreedPreview>
     ): MediatorResult {
 
         val page = when (loadType) {
@@ -49,10 +49,11 @@ internal class BreedRemoteMediator (
 
        return try {
 
-            val response = breedRemoteDataSource.fetchBreeds(page = page, pageSize = state.config.pageSize)
+           val adjustedPage = page -1
+            val response = breedRemoteDataSource.fetchBreeds(page = adjustedPage, pageSize = state.config.pageSize)
 
             if(response is Result.Error) {
-                MediatorResult.Error(response.exception)
+                return MediatorResult.Error(response.exception)
             }
 
             val breeds = (response as Result.Success).data

@@ -1,6 +1,7 @@
 package com.alexandrenavarro.catlovers.data.network
 
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
+import com.alexandrenavarro.catlovers.data.network.model.NetworkFavorite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -10,6 +11,8 @@ interface BreedRemoteDataSource {
         page: Int = 0,
         pageSize: Int = 10
     ): Result<List<NetworkBreedPreview>>
+
+    suspend fun favorite(imageId: String): Result<Long>
 }
 
 internal class DefaultBreedRemoteDataSource constructor(
@@ -34,4 +37,19 @@ internal class DefaultBreedRemoteDataSource constructor(
                 Result.NetworkError(e)
             }
         }
+
+    override suspend fun favorite(imageId: String): Result<Long> = withContext(Dispatchers.IO) {
+        try {
+            val response = breedApi.favorite(NetworkFavorite(imageId))
+
+            if (!response.isSuccessful) {
+                return@withContext Result.Error(Exception(response.message()))
+            }
+
+            Result.Success(response.body()?.id ?: -1)
+
+        } catch (e: Exception) {
+            Result.NetworkError(e)
+        }
+    }
 }

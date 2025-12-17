@@ -63,7 +63,6 @@ import coil3.request.crossfade
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
-import kotlin.text.append
 
 @Composable
 fun BreedsScreen(

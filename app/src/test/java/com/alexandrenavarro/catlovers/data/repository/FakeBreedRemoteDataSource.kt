@@ -10,7 +10,8 @@ class FakeBreedRemoteDataSource(
 
     var shouldReturnError: Boolean = false
 
-    override suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>>  {
+    override suspend fun fetchBreeds( page: Int,
+                                      pageSize: Int): Result<List<NetworkBreedPreview>>  {
         if (shouldReturnError) {
             return Result.Error(Exception("Test error"))
         }

@@ -247,27 +247,6 @@ fun CatCardPreview() {
     }
 
 }
-
-@Composable
-fun CatImage(
-    modifier: Modifier = Modifier,
-    imageUrl: String?,
-    contentDescription: String
-) {
-    SubcomposeAsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imageUrl)
-            .crossfade(true)
-            .size(400)
-            .build(),
-        contentDescription = contentDescription,
-        modifier = modifier
-            .fillMaxWidth()
-            .aspectRatio(1f),
-        contentScale = ContentScale.Crop
-    )
-}
-
 @Composable
 fun FavoriteButton(
     isFavorite: Boolean,
@@ -283,7 +262,6 @@ fun FavoriteButton(
         )
     }
 }
-
 @Composable
 private fun BreedsScreenBackground(
     modifier: Modifier = Modifier,

@@ -9,7 +9,7 @@ data class NetworkBreedPreview(
     @SerializedName("name")
     val name: String,
     @SerializedName("image")
-    val image: NetworkBreedImage,
+    val image: NetworkBreedImage?,
 )
 
 data class NetworkBreedImage(
@@ -22,8 +22,8 @@ data class NetworkBreedImage(
 fun NetworkBreedPreview.toExternalModel() = BreedPreview(
     id = id,
     name = name,
-    imageUrl = image.imageUrl,
-    imageId = image.id,
+    imageUrl = image?.imageUrl,
+    imageId = image?.id,
     isFavorite = false,
 )
 

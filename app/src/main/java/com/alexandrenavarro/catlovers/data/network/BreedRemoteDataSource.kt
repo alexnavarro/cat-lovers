@@ -3,9 +3,6 @@ package com.alexandrenavarro.catlovers.data.network
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-
-
 interface BreedRemoteDataSource {
 
     suspend fun fetchBreeds(): Result<List<NetworkBreedPreview>>

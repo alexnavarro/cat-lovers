@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import com.alexandrenavarro.catlovers.ui.catslist.BreedsScreen
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -60,12 +61,7 @@ fun CatLoversApp() {
             }
         }
     ) {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
+        BreedsScreen()
     }
 }
 

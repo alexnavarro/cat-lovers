@@ -10,6 +10,6 @@ interface BreedApi {
     @GET("/v1/breeds")
     suspend fun fetchBreeds(
         @Query("limit") limit: Int,
-        @Query("limit") page: Int
+        @Query("page") page: Int
     ): Response<List<NetworkBreedPreview>>
 }

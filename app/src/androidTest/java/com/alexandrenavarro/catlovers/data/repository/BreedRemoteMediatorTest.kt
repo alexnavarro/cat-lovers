@@ -90,4 +90,19 @@ class BreedRemoteMediatorTest {
         assertTrue(result is RemoteMediator.MediatorResult.Success)
         assertEquals(0, breedDataBase.breedsDao().count())
     }
+
+    @Test
+    fun givenEmptyDatabaseWhenRefreshAndResultIsErrorThenResultIsError() = runTest {
+        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Error(Exception()))
+
+        val sut = BreedRemoteMediator(breedRemoteDataSource, breedDataBase)
+
+        val result = sut.load(
+            LoadType.REFRESH,
+            PagingState(emptyList(), null, PagingConfig(20), 0)
+        )
+
+        assertTrue(result is RemoteMediator.MediatorResult.Error)
+        assertEquals(0, breedDataBase.breedsDao().count())
+    }
 }

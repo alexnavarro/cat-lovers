@@ -14,3 +14,5 @@
 .cxx
 local.properties
 apiKey.properties
+/.idea/androidTestResultsUserPreferences.xml
+/.idea/deploymentTargetSelector.xml

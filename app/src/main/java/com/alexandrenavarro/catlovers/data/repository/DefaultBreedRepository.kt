@@ -3,7 +3,7 @@ package com.alexandrenavarro.catlovers.data.repository
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.network.model.toExternalModel
+import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -17,7 +17,13 @@ internal class DefaultBreedRepository @Inject constructor(
     override suspend fun refreshBreeds(): Result<Unit> {
         when (val result = breedRemoteDataSource.fetchBreeds()) {
             is Result.Success -> {
-                breedsFlow.value = result.data.map { it.toExternalModel() }
+                breedsFlow.value = result.data.map { BreedPreview(
+                    id = it.id,
+                    name = it.name,
+                    imageUrl = it.image?.imageUrl,
+                    imageId = it.image?.id,
+                    isFavorite = false,
+                ) }
                 return Result.Success(Unit)
             }
             is Result.Error -> {

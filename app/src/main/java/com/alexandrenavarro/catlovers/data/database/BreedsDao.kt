@@ -18,4 +18,7 @@ interface BreedsDao {
 
     @Query("DELETE FROM breeds")
     suspend fun clearAll()
+
+    @Query("SELECT COUNT(*) FROM breeds")
+    suspend fun count(): Int
 }

@@ -14,4 +14,11 @@ interface FavoriteDao {
 
     @Query("DELETE FROM favorites WHERE id = :favoriteId")
     suspend fun deleteById(favoriteId: Long)
+
+    @Query("DELETE FROM favorites WHERE image_id = :imageId")
+    suspend fun deleteByImageId(imageId: String)
+
+    @Query("SELECT * FROM favorites WHERE image_id = :imageId")
+    suspend fun findFavoriteByImageId(imageId: String): FavoriteEntity?
+
 }

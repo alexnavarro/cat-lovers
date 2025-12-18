@@ -24,7 +24,12 @@ internal class DefaultFavoriteRemoteDataSource(
                 return@withContext Result.Error(Exception(response.message()))
             }
 
-            Result.Success(response.body()?.id ?: -1)
+            if (response.body() == null) {
+                return@withContext Result.Error(Exception("Empty body"))
+            }
+
+
+            Result.Success(response.body()!!.id)
 
         } catch (e: Exception) {
             Result.NetworkError(e)

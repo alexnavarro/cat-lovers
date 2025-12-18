@@ -4,11 +4,15 @@ import androidx.paging.testing.asSnapshot
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.model.FavoriteEntity
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedImage
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -18,6 +22,7 @@ import org.junit.Test
 class DefaultBreedRepositoryTest {
 
     private lateinit var breedRemoteDataSource: BreedRemoteDataSource
+    private lateinit var favoriteRemoteDataSource: FavoriteRemoteDataSource
     private lateinit var breedDataBase: BreedsDatabase
 
     @Before
@@ -27,6 +32,7 @@ class DefaultBreedRepositoryTest {
             BreedsDatabase::class.java
         ).build()
 
+        favoriteRemoteDataSource = fakeFavoriteRemoteDataSource
     }
 
     @After
@@ -38,7 +44,11 @@ class DefaultBreedRepositoryTest {
     fun givenRepositoryJustCreatedWhenObservingBreedsThenEmitsEmptyList() = runTest {
         breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Success(emptyList()))
 
-        val sut = DefaultBreedRepository(breedRemoteDataSource, breedDataBase)
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemoteDataSource,
+            breedDataBase = breedDataBase,
+            favoriteRemoteDataSource = favoriteRemoteDataSource
+        )
 
         val items = sut.getBreeds().asSnapshot {}
 
@@ -47,26 +57,34 @@ class DefaultBreedRepositoryTest {
 
     @Test
     fun givenObservingBreedsWhenDatabaseIsEmptyThenShouldFetchFromRemoteAndEmit() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Success(listOf(
-            NetworkBreedPreview(
-                "3",
-                "name",
-                image = NetworkBreedImage(
-                    id = "id",
-                    imageUrl = "url"
-                )
-            ),
-            NetworkBreedPreview(
-                "1",
-                "test",
-                image = NetworkBreedImage(
-                    id = "5ssss",
-                    imageUrl = "url2"
+        breedRemoteDataSource = FakeBreedRemoteDataSource(
+            Result.Success(
+                listOf(
+                    NetworkBreedPreview(
+                        "3",
+                        "name",
+                        image = NetworkBreedImage(
+                            id = "id",
+                            imageUrl = "url"
+                        )
+                    ),
+                    NetworkBreedPreview(
+                        "1",
+                        "test",
+                        image = NetworkBreedImage(
+                            id = "5ssss",
+                            imageUrl = "url2"
+                        )
+                    )
                 )
             )
-        )))
+        )
 
-        val sut = DefaultBreedRepository(breedRemoteDataSource, breedDataBase)
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemoteDataSource,
+            breedDataBase = breedDataBase,
+            favoriteRemoteDataSource = favoriteRemoteDataSource
+        )
 
         val items = sut.getBreeds().asSnapshot()
         assertEquals(2, items.size)
@@ -78,15 +96,170 @@ class DefaultBreedRepositoryTest {
 
     @Test
     fun givenGetBreedsWhenRemoteReturnsErrorThenShouldEmitError() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Error(Exception("Connection error")))
+        breedRemoteDataSource =
+            FakeBreedRemoteDataSource(Result.Error(Exception("Connection error")))
 
-        val sut = DefaultBreedRepository(breedRemoteDataSource, breedDataBase)
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemoteDataSource,
+            breedDataBase = breedDataBase,
+            favoriteRemoteDataSource = favoriteRemoteDataSource
+        )
 
         try {
             sut.getBreeds().asSnapshot()
             fail("The Snapshot should be thrown")
-        } catch (e:Exception) {
+        } catch (e: Exception) {
             assertEquals("Connection error", e.message)
         }
     }
+
+    @Test
+    fun givenAddFavoriteWhenRemoteReturnSuccessInsertsFavoritesAndReturnsSuccess() = runTest {
+        val favoriteResult = Result.Success(42L)
+        val favoriteRemote =
+            FakeFavoriteRemoteDataSource(favoriteResult = favoriteResult, Result.Success(Unit))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.addFavorite("image-1")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("image-1")
+
+        assertTrue(result is Result.Success)
+        assertNotNull(dbFavorite)
+        assertEquals(42L, dbFavorite!!.id)
+        assertEquals("image-1", dbFavorite.imageId)
+    }
+
+    @Test
+    fun givenAddFavoriteWhenRemoteReturnsErrorThenReturnsErrorAndDoesNotInsert() = runTest {
+        val favoriteRemote = FakeFavoriteRemoteDataSource(
+            favoriteResult = Result.Error(Exception("Remote error")),
+            Result.Error(Exception("Remote error"))
+        )
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.addFavorite("image-2")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("image-2")
+
+        assertTrue(result is Result.Error)
+        assertEquals("Remote error", (result as Result.Error).exception.message)
+        assertTrue(dbFavorite == null)
+    }
+
+    @Test
+    fun givenAddFavoriteWhenRemoteReturnsNetworkErrorThenReturnsNetworkErrorAndDoesNotInsert() = runTest {
+        val favoriteRemote = FakeFavoriteRemoteDataSource(favoriteResult = Result.NetworkError(Exception("Network failure")), deleteFavoriteResult = Result.Success(Unit))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.addFavorite("image-3")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("image-3")
+
+        assertTrue(result is Result.NetworkError)
+        assertEquals("Network failure", (result as Result.NetworkError).exception.message)
+        assertTrue(dbFavorite == null)
+    }
+
+    @Test
+    fun givenDeleteFavoriteWhenFavoriteNotFoundReturnsError() = runTest {
+        val favoriteRemote = FakeFavoriteRemoteDataSource(deleteFavoriteResult = Result.Success(Unit), favoriteResult = Result.Error(Exception("Remote error")))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.deleteFavorite("non-existent-image")
+
+        assertTrue(result is Result.Error)
+        assertEquals("Favorite not found", (result as Result.Error).exception.message)
+    }
+
+    @Test
+    fun givenDeleteFavoriteWhenRemoteReturnsSuccessDeletesFavoriteAndReturnsSuccess() = runTest {
+        // insert a favorite in DB first
+        breedDataBase.favoriteDao().insertFavorite(FavoriteEntity(id = 99L, imageId = "to-delete"))
+
+        val favoriteRemote = FakeFavoriteRemoteDataSource(deleteFavoriteResult = Result.Success(Unit), favoriteResult = Result.Success(99L))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.deleteFavorite("to-delete")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("to-delete")
+
+        assertTrue(result is Result.Success)
+        assertTrue(dbFavorite == null)
+    }
+
+    @Test
+    fun givenDeleteFavoriteWhenRemoteReturnsErrorThenReturnsErrorAndKeepsFavorite() = runTest {
+        // insert a favorite in DB first
+        breedDataBase.favoriteDao().insertFavorite(FavoriteEntity(id = 77L, imageId = "keep-me"))
+
+        val favoriteRemote = FakeFavoriteRemoteDataSource(deleteFavoriteResult = Result.Error(Exception("Delete failed")), favoriteResult = Result.Success(77L))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.deleteFavorite("keep-me")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("keep-me")
+
+        assertTrue(result is Result.Error)
+        assertEquals("Delete failed", (result as Result.Error).exception.message)
+        assertNotNull(dbFavorite)
+    }
+
+    @Test
+    fun giveDeleteFavoriteWhenRemoteReturnsNetworkErrorThenReturnsNetworkErrorAndKeepFavorite() = runTest {
+        // insert a favorite in DB first
+        breedDataBase.favoriteDao().insertFavorite(FavoriteEntity(id = 88L, imageId = "keep-network"))
+
+        val favoriteRemote = FakeFavoriteRemoteDataSource(deleteFavoriteResult = Result.NetworkError(Exception("Network during delete")), favoriteResult = Result.Success(88L))
+        val breedRemote = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+
+        val sut = DefaultBreedRepository(
+            breedRemoteDataSource = breedRemote,
+            favoriteRemoteDataSource = favoriteRemote,
+            breedDataBase = breedDataBase
+        )
+
+        val result = sut.deleteFavorite("keep-network")
+        val dbFavorite = breedDataBase.favoriteDao().findFavoriteByImageId("keep-network")
+
+        assertTrue(result is Result.NetworkError)
+        assertEquals("Network during delete", (result as Result.NetworkError).exception.message)
+        assertNotNull(dbFavorite)
+    }
 }
+
+private val fakeFavoriteRemoteDataSource = FakeFavoriteRemoteDataSource(
+    favoriteResult = Result.Success(1),
+    deleteFavoriteResult = Result.Success(Unit)
+)

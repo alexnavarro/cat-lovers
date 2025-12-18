@@ -15,6 +15,7 @@ class DefaultFavoriteRemoteDataSourceTest {
     private val favoriteApi = mockk<FavoriteApi>()
 
     private val responseFavorite: Response<NetworkFavoriteResponse> = mockk()
+    private val responseDelete: Response<Unit> = mockk()
 
     private lateinit var sut: DefaultFavoriteRemoteDataSource
 
@@ -61,6 +62,46 @@ class DefaultFavoriteRemoteDataSourceTest {
             val result = sut.favorite("xxxx") as Result.Success
 
             assertTrue(result.data == 0L)
+        }
+
+    @Test
+    fun `given deleteFavorite is called when there is a network error then return a network error`() =
+        runTest {
+            coEvery { favoriteApi.deleteFavorite(any()) } throws IOException()
+
+            val result = sut.deleteFavorite(123L)
+            assert(result is Result.NetworkError)
+        }
+
+    @Test
+    fun `given deleteFavorite is called when there is an unknown error then return a network error`() =
+        runTest {
+            coEvery { favoriteApi.deleteFavorite(any()) } throws Exception()
+
+            val result = sut.deleteFavorite(123L)
+            assert(result is Result.NetworkError)
+        }
+
+    @Test
+    fun `given deleteFavorite is called when there is an error on response then return an error`() =
+        runTest {
+            coEvery { responseDelete.isSuccessful } returns false
+            coEvery { responseDelete.message() } returns "Delete error"
+            coEvery { favoriteApi.deleteFavorite(any()) } returns responseDelete
+
+            val result = sut.deleteFavorite(123L)
+            assert(result is Result.Error)
+        }
+
+    @Test
+    fun `given deleteFavorite is called when response is successful then return success`() =
+        runTest {
+            coEvery { responseDelete.isSuccessful } returns true
+            coEvery { favoriteApi.deleteFavorite(any()) } returns responseDelete
+
+            val result = sut.deleteFavorite(123L) as Result.Success
+
+            assertTrue(result.data == Unit)
         }
 
 }

@@ -31,8 +31,18 @@ internal class DefaultFavoriteRemoteDataSource(
         }
     }
 
-    override suspend fun deleteFavorite(favoriteId: Long): Result<Unit> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun deleteFavorite(favoriteId: Long): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = favoriteApi.deleteFavorite(favoriteId)
 
+                if (!response.isSuccessful) {
+                    return@withContext Result.Error(Exception(response.message()))
+                }
+
+                Result.Success(Unit)
+            } catch (e: Exception) {
+                Result.NetworkError(e)
+            }
+        }
 }

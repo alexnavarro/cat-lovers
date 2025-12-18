@@ -1,7 +1,6 @@
 package com.alexandrenavarro.catlovers.data.network
 
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
-import com.alexandrenavarro.catlovers.data.network.model.NetworkFavoriteResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertSame
@@ -17,7 +16,6 @@ class DefaultBreedRemoteDataSourceTest {
 
     private val breedApi = mockk<BreedApi>()
     private val response: Response<List<NetworkBreedPreview>> = mockk()
-    private val responseFavorite: Response<NetworkFavoriteResponse> = mockk()
 
     private lateinit var sut: DefaultBreedRemoteDataSource
 
@@ -78,45 +76,5 @@ class DefaultBreedRemoteDataSourceTest {
             val result = sut.fetchBreeds() as Result.Success
 
             assertSame(breeds, result.data)
-        }
-
-    @Test
-    fun `given favorite is called when there is a network error then return a network error`() =
-        runTest {
-            coEvery { breedApi.favorite(any())} throws IOException()
-
-            val result = sut.favorite("xxxx")
-            assert(result is Result.NetworkError)
-        }
-
-    @Test
-    fun `given favorite call is called when there is a unknown error then return a network error`() =
-        runTest {
-            coEvery { breedApi.favorite(any()) } throws Exception()
-
-            val result = sut.favorite("xxxx")
-            assert(result is Result.NetworkError)
-        }
-
-    @Test
-    fun `given favorite call is called when there is an error on response then return an error`() = runTest {
-        coEvery { responseFavorite.isSuccessful } returns false
-        coEvery { responseFavorite.message() } returns "Error error"
-        coEvery { breedApi.favorite(any()) } returns responseFavorite
-
-        val result = sut.favorite("xxxx")
-        assert(result is Result.Error)
-    }
-
-    @Test
-    fun `given favorite call is called when there is an empty response then return a success`() =
-        runTest {
-            coEvery { responseFavorite.isSuccessful } returns true
-            coEvery { responseFavorite.body() } returns NetworkFavoriteResponse(0)
-            coEvery { breedApi.favorite(any()) } returns responseFavorite
-
-            val result = sut.favorite("xxxx") as Result.Success
-
-            assertTrue(result.data == 0L)
         }
 }

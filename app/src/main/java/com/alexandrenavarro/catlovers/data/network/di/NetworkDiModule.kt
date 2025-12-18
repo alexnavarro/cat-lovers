@@ -5,6 +5,9 @@ import com.alexandrenavarro.catlovers.data.network.AuthHeaderInterceptor
 import com.alexandrenavarro.catlovers.data.network.BreedApi
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.DefaultBreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.DefaultFavoriteRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.FavoriteApi
+import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,6 +52,16 @@ object NetworkDiModule {
 
     @Provides
     @Singleton
+    fun provideFavoriteApiService(retrofit: Retrofit): FavoriteApi =
+        retrofit.create(FavoriteApi::class.java)
+
+    @Provides
+    @Singleton
     fun provideBreedRemoteDataSource(breedApi: BreedApi): BreedRemoteDataSource =
         DefaultBreedRemoteDataSource(breedApi)
+
+    @Provides
+    @Singleton
+    fun provideFavoriteRemoteDataSource(favoriteApi: FavoriteApi): FavoriteRemoteDataSource =
+        DefaultFavoriteRemoteDataSource(favoriteApi)
 }

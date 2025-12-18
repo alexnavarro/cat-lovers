@@ -5,5 +5,5 @@ data class BreedPreview(
     val name: String,
     val imageUrl: String?,
     val imageId: String?,
-//    val isFavorite: Boolean,
+    val isFavorite: Boolean,
 )

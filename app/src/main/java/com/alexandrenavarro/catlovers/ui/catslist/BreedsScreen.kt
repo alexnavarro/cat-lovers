@@ -145,7 +145,7 @@ fun BreedsScreenPreview() {
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
             id = "abys$idx",
-//            isFavorite = false
+            isFavorite = false
         )
     }
 
@@ -197,7 +197,7 @@ fun BreedsGridPreview() {
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
             id = "abys$idx",
-//            isFavorite = false
+            isFavorite = false
         )
     }
 
@@ -280,7 +280,7 @@ fun CatCard(
 
                     if (breed.imageId?.isNotEmpty() == true) {
                         FavoriteButton(
-                            isFavorite = false,//TODO FIX IT
+                            isFavorite = breed.isFavorite,
                             onClick = { onFavoriteClick(breed.imageId) }
                         )
                     }
@@ -300,7 +300,7 @@ fun CatCardPreview() {
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 imageId = "0XYvRd7oD",
                 id = "abys",
-//                isFavorite = false
+                isFavorite = false
             )
         )
     }

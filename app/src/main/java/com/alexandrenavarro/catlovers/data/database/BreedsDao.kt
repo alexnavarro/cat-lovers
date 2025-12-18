@@ -15,9 +15,11 @@ interface BreedsDao {
             breed.id,
             breed.name,
             breed.image_url AS imageUrl,
-            breed.image_id AS imageId
+            breed.image_id AS imageId,
+            (f.image_id IS NOT NULL) AS isFavorite
         FROM breeds AS breed
-        ORDER BY name
+        LEFT JOIN favorites AS f ON breed.image_id = f.image_id
+        ORDER BY breed.name
     """,
     )
     fun pagingSource(): PagingSource<Int, BreedPreview>

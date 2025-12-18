@@ -16,13 +16,25 @@ internal class DefaultBreedRepository @Inject constructor(
 ): BreedRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getBreeds(): Flow<PagingData<BreedPreview>> =
-        Pager(
-            config = PagingConfig(
-                pageSize = 10,
-                enablePlaceholders = false
-            ),
-            remoteMediator = BreedRemoteMediator(breedRemoteDataSource, breedDataBase),
-            pagingSourceFactory = { breedDataBase.breedsDao().pagingSource() }
-        ).flow
+    override fun getBreeds(query: String?): Flow<PagingData<BreedPreview>> {
+        return if (query.isNullOrBlank()) {
+            Pager(
+                config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+                remoteMediator = BreedRemoteMediator(
+                    breedRemoteDataSource,
+                    breedDataBase
+                ),
+                pagingSourceFactory = {
+                    breedDataBase.breedsDao().pagingSource(null)
+                }
+            ).flow
+        } else {
+            Pager(
+                config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+                pagingSourceFactory = {
+                    breedDataBase.breedsDao().pagingSource(query)
+                }
+            ).flow
+        }
+    }
 }

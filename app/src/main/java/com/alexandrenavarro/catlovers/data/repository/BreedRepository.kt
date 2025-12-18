@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface BreedRepository {
 
-    fun getBreeds(): Flow<PagingData<BreedPreview>>
+    fun getBreeds(query: String?): Flow<PagingData<BreedPreview>>
 }

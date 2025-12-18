@@ -19,10 +19,11 @@ interface BreedsDao {
             (f.image_id IS NOT NULL) AS isFavorite
         FROM breeds AS breed
         LEFT JOIN favorites AS f ON breed.image_id = f.image_id
+        WHERE (:query IS NULL OR breed.name LIKE '%' || :query || '%' COLLATE NOCASE)
         ORDER BY breed.name
     """,
     )
-    fun pagingSource(): PagingSource<Int, BreedPreview>
+    fun pagingSource(query: String?): PagingSource<Int, BreedPreview>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<BreedPreviewEntity>)

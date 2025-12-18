@@ -7,20 +7,36 @@ import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.repository.BreedRepository
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class BreedsScreenViewModel @Inject constructor(
     private val breedRepository: BreedRepository,
     private val favoriteRepository: FavoriteRepository,
 ): ViewModel()  {
 
-    val breeds = breedRepository
-    .getBreeds()
-    .cachedIn(viewModelScope)
+    private val _query = MutableStateFlow<String?>(null)
+    val query: StateFlow<String?> = _query
+
+
+    val breeds = query
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { q ->
+            breedRepository.getBreeds(q)
+        }
+        .cachedIn(viewModelScope)
 
     private val _events = Channel<FavoriteUiEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
@@ -56,6 +72,10 @@ class BreedsScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun setQuery(value: String) {
+        _query.value = value.ifBlank { null }
     }
 }
 

@@ -2,6 +2,7 @@ package com.alexandrenavarro.catlovers.ui.catslist
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -74,7 +75,8 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun BreedsScreen(
     modifier: Modifier = Modifier,
-    viewModel: BreedsScreenViewModel = hiltViewModel()
+    viewModel: BreedsScreenViewModel = hiltViewModel(),
+    onCatClicked: (breedId: String) -> Unit
 ) {
     val breeds = viewModel.breeds.collectAsLazyPagingItems()
     val query by viewModel.query.collectAsState()
@@ -156,8 +158,8 @@ fun BreedsScreen(
                     .padding(padding)
                     .fillMaxSize(),
                 breeds = breeds,
-                onFavoriteClick = viewModel::onFavoriteClicked
-
+                onFavoriteClick = viewModel::onFavoriteClicked,
+                onCatClicked = onCatClicked,
             )
         }
 
@@ -178,7 +180,8 @@ fun BreedsScreen(
 fun BreedsGrid(
     modifier: Modifier = Modifier,
     breeds: LazyPagingItems<BreedPreview>,
-    onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit
+    onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
+    onCatClicked: (breedId: String) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
@@ -192,7 +195,8 @@ fun BreedsGrid(
             breed?.let { item ->
                 CatCard(
                     breed = item,
-                    onFavoriteClick = onFavoriteClick
+                    onFavoriteClick = onFavoriteClick,
+                    onCatClicked = onCatClicked
                 )
             }
         }
@@ -222,8 +226,8 @@ fun BreedsGridPreview() {
     CatLoversTheme {
         BreedsGrid(
             breeds = breeds.collectAsMutableLazyPagingItems(),
-            onFavoriteClick = { _, _ -> }
-
+            onFavoriteClick = { _, _ -> },
+            onCatClicked = {}
         )
     }
 
@@ -234,9 +238,10 @@ fun CatCard(
     modifier: Modifier = Modifier,
     breed: BreedPreview,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
+    onCatClicked: (breedId: String) -> Unit,
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier.clickable { onCatClicked(breed.id) },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -321,7 +326,8 @@ fun CatCardPreview() {
                 imageId = "0XYvRd7oD",
                 id = "abys",
                 isFavorite = false
-            )
+            ),
+            onCatClicked = {}
         )
     }
 

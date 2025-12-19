@@ -20,6 +20,7 @@ coil = "3.3.0"
 androidxHiltNavigationCompose = "1.2.0"
 room = "2.8.4"
 paging_version = "3.3.6"
+androidx-navigation = "2.9.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging_version" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging_version" }
 androidx-paging-testing= { module = "androidx.paging:paging-testing", version.ref = "paging_version" }
+androidx-navigation-compose= { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }

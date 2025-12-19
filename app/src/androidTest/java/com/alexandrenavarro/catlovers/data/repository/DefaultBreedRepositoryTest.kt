@@ -42,7 +42,7 @@ class DefaultBreedRepositoryTest {
             breedDataBase = breedDataBase,
         )
 
-        val items = sut.getBreeds().asSnapshot {}
+        val items = sut.getBreeds(null).asSnapshot {}
 
         assertEquals(0, items.size)
     }
@@ -77,7 +77,7 @@ class DefaultBreedRepositoryTest {
             breedDataBase = breedDataBase,
         )
 
-        val items = sut.getBreeds().asSnapshot()
+        val items = sut.getBreeds(null).asSnapshot()
         assertEquals(2, items.size)
         assertEquals("3", items.first().id)
         assertEquals("name", items.first().name)
@@ -96,7 +96,7 @@ class DefaultBreedRepositoryTest {
         )
 
         try {
-            sut.getBreeds().asSnapshot()
+            sut.getBreeds(null).asSnapshot()
             fail("The Snapshot should be thrown")
         } catch (e: Exception) {
             assertEquals("Connection error", e.message)

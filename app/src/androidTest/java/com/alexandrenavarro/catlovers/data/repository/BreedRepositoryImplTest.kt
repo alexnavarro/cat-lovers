@@ -3,7 +3,7 @@ package com.alexandrenavarro.catlovers.data.repository
 import androidx.paging.testing.asSnapshot
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedDetail
@@ -22,13 +22,13 @@ import java.io.IOException
 class BreedRepositoryImplTest {
 
     private lateinit var breedRemoteDataSource: BreedRemoteDataSource
-    private lateinit var breedDataBase: BreedsDatabase
+    private lateinit var breedDataBase: CatBreedsDatabase
 
     @Before
     fun setup() {
         breedDataBase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            BreedsDatabase::class.java
+            CatBreedsDatabase::class.java
         ).build()
     }
 

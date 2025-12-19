@@ -5,8 +5,8 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
-import com.alexandrenavarro.catlovers.data.database.model.BreedRemoteKey
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.model.CatBreedRemoteKey
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
@@ -15,7 +15,7 @@ import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 @OptIn(ExperimentalPagingApi::class)
 internal class BreedRemoteMediator(
     private val breedRemoteDataSource: BreedRemoteDataSource,
-    private val breedDataBase: BreedsDatabase,
+    private val breedDataBase: CatBreedsDatabase,
 ) : RemoteMediator<Int, BreedPreview>() {
 
     override suspend fun load(
@@ -57,20 +57,20 @@ internal class BreedRemoteMediator(
 
             breedDataBase.withTransaction {
                 if (loadType == LoadType.REFRESH) {
-                    breedDataBase.breedsDao().clearAll()
-                    breedDataBase.breedRemoteKeyDao().clearRemoteKeys()
+                    breedDataBase.catBreedsDao().clearAll()
+                    breedDataBase.catBreedsRemoteKeyDao().clearRemoteKeys()
                 }
 
                 val keys = breeds.map {
-                    BreedRemoteKey(
+                    CatBreedRemoteKey(
                         breedId = it.id,
                         prevKey = if (page == 1) null else page - 1,
                         nextKey = if (endReached) null else page + 1
                     )
                 }
 
-                breedDataBase.breedRemoteKeyDao().insertAll(keys)
-                breedDataBase.breedsDao().insertAll(breeds.map { it.toBreedPreviewEntity() })
+                breedDataBase.catBreedsRemoteKeyDao().insertAll(keys)
+                breedDataBase.catBreedsDao().insertAll(breeds.map { it.toBreedPreviewEntity() })
             }
 
             MediatorResult.Success(endOfPaginationReached = endReached)
@@ -80,9 +80,9 @@ internal class BreedRemoteMediator(
         }
     }
 
-    private suspend fun getRemoteKeyForFirstItem(breedId: String): BreedRemoteKey? =
-        breedDataBase.breedRemoteKeyDao().remoteKeyById(breedId)
+    private suspend fun getRemoteKeyForFirstItem(breedId: String): CatBreedRemoteKey? =
+        breedDataBase.catBreedsRemoteKeyDao().remoteKeyById(breedId)
 
-    private suspend fun getRemoteKeyForLastItem(breedId: String): BreedRemoteKey? =
-        breedDataBase.breedRemoteKeyDao().remoteKeyById(breedId)
+    private suspend fun getRemoteKeyForLastItem(breedId: String): CatBreedRemoteKey? =
+        breedDataBase.catBreedsRemoteKeyDao().remoteKeyById(breedId)
 }

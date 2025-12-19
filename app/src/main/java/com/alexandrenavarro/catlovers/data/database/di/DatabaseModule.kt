@@ -2,7 +2,7 @@ package com.alexandrenavarro.catlovers.data.database.di
 
 import android.content.Context
 import androidx.room.Room
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,10 +16,10 @@ internal object DatabaseModule {
 
     @Provides
     @Singleton
-    fun providesBreedsDatabase(@ApplicationContext context: Context): BreedsDatabase =
+    fun providesCatBreedsDatabase(@ApplicationContext context: Context): CatBreedsDatabase =
         Room.databaseBuilder(
             context,
-            BreedsDatabase::class.java,
-            "breeds-database"
+            CatBreedsDatabase::class.java,
+            "cat-breeds-database"
         ).build()
 }

@@ -2,8 +2,8 @@ package com.alexandrenavarro.catlovers.data.repository
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
-import com.alexandrenavarro.catlovers.data.database.model.BreedPreviewEntity
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.model.CatBreedPreviewEntity
 import com.alexandrenavarro.catlovers.data.database.model.FavoriteEntity
 import com.alexandrenavarro.catlovers.data.network.Result
 import junit.framework.TestCase.assertEquals
@@ -17,13 +17,13 @@ import org.junit.Test
 
 
 class FavoriteRepositoryImplTest {
-    private lateinit var breedDataBase: BreedsDatabase
+    private lateinit var breedDataBase: CatBreedsDatabase
 
     @Before
     fun setup() {
         breedDataBase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            BreedsDatabase::class.java
+            CatBreedsDatabase::class.java
         ).build()
     }
 
@@ -194,8 +194,8 @@ class FavoriteRepositoryImplTest {
 
     @Test
     fun givenGetFavoriteBreedsReturnsInsertedFavoriteMappedToDomainModel() = runTest {
-        breedDataBase.breedsDao().insertAll(listOf(
-            BreedPreviewEntity(id = "444", name = "Abyssinian", imageUrl = "https://cdn2.thecatapi.com/images/O3btzLlsO.png", imageId = "img-5", averageLifeSpan = 18)
+        breedDataBase.catBreedsDao().insertAll(listOf(
+            CatBreedPreviewEntity(id = "444", name = "Abyssinian", imageUrl = "https://cdn2.thecatapi.com/images/O3btzLlsO.png", imageId = "img-5", averageLifeSpan = 18)
         ))
         breedDataBase.favoriteDao().insertFavorite(FavoriteEntity(id = 5L, imageId = "img-5"))
 

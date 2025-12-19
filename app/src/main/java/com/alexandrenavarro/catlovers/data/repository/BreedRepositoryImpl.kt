@@ -4,7 +4,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.toExternalModel
@@ -15,7 +15,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalPagingApi::class)
 internal class BreedRepositoryImpl @Inject constructor(
     private val breedRemoteDataSource: BreedRemoteDataSource,
-    private val breedDataBase: BreedsDatabase,
+    private val breedDataBase: CatBreedsDatabase,
 ) : BreedRepository {
 
     companion object {
@@ -42,12 +42,12 @@ internal class BreedRepositoryImpl @Inject constructor(
     private fun createPagerWithRemoteMediator() = Pager(
         config = PAGING_CONFIG,
         remoteMediator = breedRemoteMediator,
-        pagingSourceFactory = { breedDataBase.breedsDao().pagingSource(null) }
+        pagingSourceFactory = { breedDataBase.catBreedsDao().pagingSource(null) }
     )
 
     private fun createPagerWithLocalSearch(query: String) = Pager(
         config = PAGING_CONFIG,
-        pagingSourceFactory = { breedDataBase.breedsDao().pagingSource(query) }
+        pagingSourceFactory = { breedDataBase.catBreedsDao().pagingSource(query) }
     )
 
     override suspend fun getBreedDetail(breedId: String): Result<BreedDetail> {

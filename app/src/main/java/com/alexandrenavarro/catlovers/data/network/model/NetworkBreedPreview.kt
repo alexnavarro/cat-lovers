@@ -1,6 +1,6 @@
 package com.alexandrenavarro.catlovers.data.network.model
 
-import com.alexandrenavarro.catlovers.data.database.model.BreedPreviewEntity
+import com.alexandrenavarro.catlovers.data.database.model.CatBreedPreviewEntity
 import com.google.gson.annotations.SerializedName
 
 data class NetworkBreedPreview(
@@ -21,7 +21,7 @@ data class NetworkBreedImage(
     val imageUrl: String,
 )
 
-fun NetworkBreedPreview.toBreedPreviewEntity() = BreedPreviewEntity(
+fun NetworkBreedPreview.toBreedPreviewEntity() = CatBreedPreviewEntity(
     id = id,
     name = name,
     imageUrl = image?.imageUrl,

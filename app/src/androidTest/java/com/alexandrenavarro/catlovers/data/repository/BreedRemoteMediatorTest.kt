@@ -7,7 +7,7 @@ import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedImage
@@ -24,13 +24,13 @@ import org.junit.Test
 class BreedRemoteMediatorTest {
 
     private lateinit var breedRemoteDataSource: BreedRemoteDataSource
-    private lateinit var breedDataBase: BreedsDatabase
+    private lateinit var breedDataBase: CatBreedsDatabase
 
     @Before
     fun setup() {
         breedDataBase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            BreedsDatabase::class.java
+            CatBreedsDatabase::class.java
         ).build()
 
     }
@@ -75,7 +75,7 @@ class BreedRemoteMediatorTest {
         )
 
         assertTrue(result is RemoteMediator.MediatorResult.Success)
-        assertEquals(2, breedDataBase.breedsDao().count())
+        assertEquals(2, breedDataBase.catBreedsDao().count())
     }
 
     @Test
@@ -90,7 +90,7 @@ class BreedRemoteMediatorTest {
         )
 
         assertTrue(result is RemoteMediator.MediatorResult.Success)
-        assertEquals(0, breedDataBase.breedsDao().count())
+        assertEquals(0, breedDataBase.catBreedsDao().count())
     }
 
     @Test
@@ -105,6 +105,6 @@ class BreedRemoteMediatorTest {
         )
 
         assertTrue(result is RemoteMediator.MediatorResult.Error)
-        assertEquals(0, breedDataBase.breedsDao().count())
+        assertEquals(0, breedDataBase.catBreedsDao().count())
     }
 }

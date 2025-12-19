@@ -6,10 +6,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "breeds",
+    tableName = "cat_breeds",
     indices = [Index(value = ["image_id"], unique = true)]
 )
-data class BreedPreviewEntity(
+data class CatBreedPreviewEntity(
     @PrimaryKey val id: String,
     @ColumnInfo(name = "name")
     val name: String,

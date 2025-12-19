@@ -10,18 +10,18 @@ import org.junit.Test
 import retrofit2.Response
 import java.io.IOException
 
-class DefaultFavoriteRemoteDataSourceTest {
+class FavoriteRemoteDataSourceImplTest {
 
     private val favoriteApi = mockk<FavoriteApi>()
 
     private val responseFavorite: Response<NetworkFavoriteResponse> = mockk()
     private val responseDelete: Response<Unit> = mockk()
 
-    private lateinit var sut: DefaultFavoriteRemoteDataSource
+    private lateinit var sut: FavoriteRemoteDataSourceImpl
 
     @Before
     fun setUp(){
-        sut = DefaultFavoriteRemoteDataSource(favoriteApi)
+        sut = FavoriteRemoteDataSourceImpl(favoriteApi)
     }
 
     @Test
@@ -96,6 +96,7 @@ class DefaultFavoriteRemoteDataSourceTest {
     @Test
     fun `given deleteFavorite is called when response is successful then return success`() =
         runTest {
+            coEvery { responseDelete.body() } returns Unit
             coEvery { responseDelete.isSuccessful } returns true
             coEvery { favoriteApi.deleteFavorite(any()) } returns responseDelete
 

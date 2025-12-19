@@ -12,16 +12,16 @@ import retrofit2.Response
 import java.io.IOException
 
 
-class DefaultBreedRemoteDataSourceTest {
+class BreedRemoteDataSourceImplTest {
 
     private val breedApi = mockk<BreedApi>()
     private val response: Response<List<NetworkBreedPreview>> = mockk()
 
-    private lateinit var sut: DefaultBreedRemoteDataSource
+    private lateinit var sut: BreedRemoteDataSourceImpl
 
     @Before
     fun setup() {
-        sut = DefaultBreedRemoteDataSource(breedApi)
+        sut = BreedRemoteDataSourceImpl(breedApi)
     }
 
     @Test
@@ -43,14 +43,15 @@ class DefaultBreedRemoteDataSourceTest {
         }
 
     @Test
-    fun `given fetchBreeds call is called when there is an error on response then return an error`() = runTest {
-        coEvery { response.isSuccessful } returns false
-        coEvery { response.message() } returns "Error error"
-        coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+    fun `given fetchBreeds call is called when there is an error on response then return an error`() =
+        runTest {
+            coEvery { response.isSuccessful } returns false
+            coEvery { response.message() } returns "Error error"
+            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
 
-        val result = sut.fetchBreeds()
-        assert(result is Result.Error)
-    }
+            val result = sut.fetchBreeds()
+            assert(result is Result.Error)
+        }
 
     @Test
     fun `given fetchBreeds call is called when there is an empty response then return a success`() =
@@ -67,7 +68,7 @@ class DefaultBreedRemoteDataSourceTest {
     @Test
     fun `given fetch call is called twice when there is a valid response then should call the api only once`() =
         runTest {
-            val breeds = listOf(NetworkBreedPreview("1", "name", mockk()))
+            val breeds = listOf(NetworkBreedPreview("1", "name", mockk(), lifeSpan = "10 - 20"))
 
             coEvery { response.isSuccessful } returns true
             coEvery { response.body() } returns breeds

@@ -12,7 +12,7 @@ interface FavoriteRemoteDataSource {
 
 }
 
-internal class DefaultFavoriteRemoteDataSource(
+internal class FavoriteRemoteDataSourceImpl(
     private val favoriteApi: FavoriteApi,
 ) : FavoriteRemoteDataSource {
 
@@ -37,17 +37,5 @@ internal class DefaultFavoriteRemoteDataSource(
     }
 
     override suspend fun deleteFavorite(favoriteId: Long): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = favoriteApi.deleteFavorite(favoriteId)
-
-                if (!response.isSuccessful) {
-                    return@withContext Result.Error(Exception(response.message()))
-                }
-
-                Result.Success(Unit)
-            } catch (e: Exception) {
-                Result.NetworkError(e)
-            }
-        }
+        safeApiCall { favoriteApi.deleteFavorite(favoriteId) }
 }

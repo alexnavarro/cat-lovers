@@ -15,7 +15,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class DefaultBreedRepositoryTest {
+class BreedRepositoryImplTest {
 
     private lateinit var breedRemoteDataSource: BreedRemoteDataSource
     private lateinit var breedDataBase: BreedsDatabase
@@ -37,7 +37,7 @@ class DefaultBreedRepositoryTest {
     fun givenRepositoryJustCreatedWhenObservingBreedsThenEmitsEmptyList() = runTest {
         breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Success(emptyList()))
 
-        val sut = DefaultBreedRepository(
+        val sut = BreedRepositoryImpl(
             breedRemoteDataSource = breedRemoteDataSource,
             breedDataBase = breedDataBase,
         )
@@ -74,7 +74,7 @@ class DefaultBreedRepositoryTest {
             )
         )
 
-        val sut = DefaultBreedRepository(
+        val sut = BreedRepositoryImpl(
             breedRemoteDataSource = breedRemoteDataSource,
             breedDataBase = breedDataBase,
         )
@@ -92,7 +92,7 @@ class DefaultBreedRepositoryTest {
         breedRemoteDataSource =
             FakeBreedRemoteDataSource(Result.Error(Exception("Connection error")))
 
-        val sut = DefaultBreedRepository(
+        val sut = BreedRepositoryImpl(
             breedRemoteDataSource = breedRemoteDataSource,
             breedDataBase = breedDataBase,
         )

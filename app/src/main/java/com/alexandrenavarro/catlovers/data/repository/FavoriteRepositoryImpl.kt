@@ -8,7 +8,7 @@ import com.alexandrenavarro.catlovers.domain.model.FavoriteBreed
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DefaultFavoriteRepository @Inject constructor(
+class FavoriteRepositoryImpl @Inject constructor(
     private val favoriteRemoteDataSource: FavoriteRemoteDataSource,
     private val favoriteDao: FavoriteDao
 ): FavoriteRepository {
@@ -71,4 +71,6 @@ class DefaultFavoriteRepository @Inject constructor(
     }
 
     override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> = favoriteDao.getFavoriteBreeds()
+
+    override fun isFavorite(imageId: String): Flow<Boolean> = favoriteDao.isFavorite(imageId)
 }

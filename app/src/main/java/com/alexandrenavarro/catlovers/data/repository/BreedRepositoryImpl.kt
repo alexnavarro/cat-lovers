@@ -10,7 +10,7 @@ import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-internal class DefaultBreedRepository @Inject constructor(
+internal class BreedRepositoryImpl @Inject constructor(
     private val breedRemoteDataSource: BreedRemoteDataSource,
     private val breedDataBase: BreedsDatabase,
 ): BreedRepository {

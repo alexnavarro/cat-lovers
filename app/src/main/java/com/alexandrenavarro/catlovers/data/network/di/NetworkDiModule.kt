@@ -4,8 +4,8 @@ import com.alexandrenavarro.catlovers.BuildConfig
 import com.alexandrenavarro.catlovers.data.network.AuthHeaderInterceptor
 import com.alexandrenavarro.catlovers.data.network.BreedApi
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
-import com.alexandrenavarro.catlovers.data.network.DefaultBreedRemoteDataSource
-import com.alexandrenavarro.catlovers.data.network.DefaultFavoriteRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSourceImpl
+import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSourceImpl
 import com.alexandrenavarro.catlovers.data.network.FavoriteApi
 import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
 import dagger.Module
@@ -58,10 +58,10 @@ object NetworkDiModule {
     @Provides
     @Singleton
     fun provideBreedRemoteDataSource(breedApi: BreedApi): BreedRemoteDataSource =
-        DefaultBreedRemoteDataSource(breedApi)
+        BreedRemoteDataSourceImpl(breedApi)
 
     @Provides
     @Singleton
     fun provideFavoriteRemoteDataSource(favoriteApi: FavoriteApi): FavoriteRemoteDataSource =
-        DefaultFavoriteRemoteDataSource(favoriteApi)
+        FavoriteRemoteDataSourceImpl(favoriteApi)
 }

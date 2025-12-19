@@ -16,7 +16,7 @@ import org.junit.Before
 import org.junit.Test
 
 
-class DefaultFavoriteRepositoryTest {
+class FavoriteRepositoryImplTest {
     private lateinit var breedDataBase: BreedsDatabase
 
     @Before
@@ -38,7 +38,7 @@ class DefaultFavoriteRepositoryTest {
         val favoriteRemote =
             FakeFavoriteRemoteDataSource(favoriteResult = favoriteResult, Result.Success(Unit))
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -59,7 +59,7 @@ class DefaultFavoriteRepositoryTest {
             Result.Error(Exception("Remote error"))
         )
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -80,7 +80,7 @@ class DefaultFavoriteRepositoryTest {
                 deleteFavoriteResult = Result.Success(Unit)
             )
 
-            val sut = DefaultFavoriteRepository(
+            val sut = FavoriteRepositoryImpl(
                 favoriteRemoteDataSource = favoriteRemote,
                 favoriteDao = breedDataBase.favoriteDao()
             )
@@ -100,7 +100,7 @@ class DefaultFavoriteRepositoryTest {
             favoriteResult = Result.Error(Exception("Remote error"))
         )
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -120,7 +120,7 @@ class DefaultFavoriteRepositoryTest {
             favoriteResult = Result.Success(99L)
         )
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -141,7 +141,7 @@ class DefaultFavoriteRepositoryTest {
             favoriteResult = Result.Success(77L)
         )
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -165,7 +165,7 @@ class DefaultFavoriteRepositoryTest {
                 favoriteResult = Result.Success(88L)
             )
 
-            val sut = DefaultFavoriteRepository(
+            val sut = FavoriteRepositoryImpl(
                 favoriteRemoteDataSource = favoriteRemote,
                 favoriteDao = breedDataBase.favoriteDao()
             )
@@ -183,7 +183,7 @@ class DefaultFavoriteRepositoryTest {
         val favoriteRemote =
             FakeFavoriteRemoteDataSource(favoriteResult = Result.Success(1L), deleteFavoriteResult = Result.Success(Unit))
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )
@@ -202,7 +202,7 @@ class DefaultFavoriteRepositoryTest {
         val favoriteRemote =
             FakeFavoriteRemoteDataSource(favoriteResult = Result.Success(1L), deleteFavoriteResult = Result.Success(Unit))
 
-        val sut = DefaultFavoriteRepository(
+        val sut = FavoriteRepositoryImpl(
             favoriteRemoteDataSource = favoriteRemote,
             favoriteDao = breedDataBase.favoriteDao()
         )

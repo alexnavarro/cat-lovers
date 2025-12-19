@@ -33,4 +33,7 @@ interface FavoriteDao {
         INNER JOIN breeds AS b ON f.image_id = b.image_id
     """)
     fun getFavoriteBreeds(): Flow<List<FavoriteBreed>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE image_id = :imageId)")
+    fun isFavorite(imageId: String): Flow<Boolean>
 }

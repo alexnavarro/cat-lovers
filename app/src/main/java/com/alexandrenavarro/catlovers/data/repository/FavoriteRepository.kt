@@ -11,4 +11,6 @@ interface FavoriteRepository {
     suspend fun deleteFavorite(imageId: String): Result<Unit>
 
     fun getFavoriteBreeds(): Flow<List<FavoriteBreed>>
+
+    fun isFavorite(imageId: String): Flow<Boolean>
 }

@@ -59,14 +59,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.alexandrenavarro.catlovers.domain.model.BreedDetail
+import com.alexandrenavarro.catlovers.domain.model.CatBreedDetail
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BreedDetailScreen(
+fun CatBreedDetailScreen(
     modifier: Modifier = Modifier,
-    viewModel: BreedDetailScreenViewModel = hiltViewModel(),
+    viewModel: CatBreedDetailScreenViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -88,35 +88,35 @@ fun BreedDetailScreen(
         },
 
         floatingActionButton = {
-            if (state is BreedDetailUiState.Success) {
-                val data = (state as BreedDetailUiState.Success)
+            if (state is CatBreedDetailUiState.Success) {
+                val data = (state as CatBreedDetailUiState.Success)
 
-                if (data.breedDetail.imageId != null) {
+                if (data.catBreedDetail.imageId != null) {
                     FavoriteFab(
                         isFavorite = data.isFavorite,
-                        onClick = { viewModel.onFavoriteToggle(data.breedDetail.imageId) }
+                        onClick = { viewModel.onFavoriteToggle(data.catBreedDetail.imageId) }
                     )
                 }
             }
         }
     ) { padding ->
         when (val s = state) {
-            is BreedDetailUiState.Success -> BreedDetailScreen(
-                breedDetail = s.breedDetail,
+            is CatBreedDetailUiState.Success -> CatBreedDetailScreen(
+                catBreedDetail = s.catBreedDetail,
                 paddingValues = padding
             )
 
-            is BreedDetailUiState.Loading -> LoadingCircle()
-            is BreedDetailUiState.Error -> ErrorState()
+            is CatBreedDetailUiState.Loading -> LoadingCircle()
+            is CatBreedDetailUiState.Error -> ErrorState()
         }
     }
 }
 
 
 @Composable
-fun BreedDetailScreen(
+fun CatBreedDetailScreen(
     modifier: Modifier = Modifier,
-    breedDetail: BreedDetail,
+    catBreedDetail: CatBreedDetail,
     paddingValues: PaddingValues
 ) {
     Column(
@@ -125,10 +125,10 @@ fun BreedDetailScreen(
             .padding(paddingValues)
             .verticalScroll(rememberScrollState())
     ) {
-        CatBreedImage(imageUrl = breedDetail.imageUrl)
+        CatBreedImage(imageUrl = catBreedDetail.imageUrl)
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = breedDetail.name,
+                text = catBreedDetail.name,
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -141,7 +141,7 @@ fun BreedDetailScreen(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "Origin: ${breedDetail.origin}",
+                    text = "Origin: ${catBreedDetail.origin}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -161,7 +161,7 @@ fun BreedDetailScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                breedDetail.temperament.split(",").forEach { tag ->
+                catBreedDetail.temperament.split(",").forEach { tag ->
                     SuggestionChip(
                         onClick = {},
                         label = { Text(tag.trim()) },
@@ -178,7 +178,7 @@ fun BreedDetailScreen(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = breedDetail.description,
+                text = catBreedDetail.description,
                 style = MaterialTheme.typography.bodyLarge,
                 lineHeight = 24.sp,
                 textAlign = TextAlign.Justify
@@ -189,9 +189,9 @@ fun BreedDetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewBreedDetailScreen() {
+fun PreviewCatBreedDetailScreen() {
 
-    val breedDetail = BreedDetail(
+    val catBreedDetail = CatBreedDetail(
         id = "1",
         name = "Bengal",
         origin = "United States",
@@ -202,8 +202,8 @@ fun PreviewBreedDetailScreen() {
     )
 
     CatLoversTheme {
-        BreedDetailScreen(
-            breedDetail = breedDetail,
+        CatBreedDetailScreen(
+            catBreedDetail = catBreedDetail,
             paddingValues = PaddingValues()
         )
     }
@@ -316,12 +316,10 @@ fun CatBreedImage(
             .crossfade(true)
             .build(),
         contentDescription = null,
-        // FillWidth faz a imagem ocupar toda a largura e
-        // crescer a altura proporcionalmente ao arquivo original.
         contentScale = ContentScale.FillWidth,
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight() // A altura é definida pela imagem
+            .wrapContentHeight()
             .background(MaterialTheme.colorScheme.surfaceVariant),
         loading = {
             CatBreedImagePlaceholder()

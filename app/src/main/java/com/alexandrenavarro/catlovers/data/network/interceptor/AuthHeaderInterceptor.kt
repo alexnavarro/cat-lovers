@@ -1,4 +1,4 @@
-package com.alexandrenavarro.catlovers.data.network
+package com.alexandrenavarro.catlovers.data.network.interceptor
 
 import okhttp3.Interceptor
 import okhttp3.Response

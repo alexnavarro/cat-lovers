@@ -7,20 +7,20 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
 import com.alexandrenavarro.catlovers.data.database.model.CatBreedRemoteKey
-import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.CatBreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
-import com.alexandrenavarro.catlovers.domain.model.BreedPreview
+import com.alexandrenavarro.catlovers.data.network.model.toCatBreedPreviewEntity
+import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 
 @OptIn(ExperimentalPagingApi::class)
-internal class BreedRemoteMediator(
-    private val breedRemoteDataSource: BreedRemoteDataSource,
+internal class CatBreedRemoteMediator(
+    private val catBreedRemoteDataSource: CatBreedRemoteDataSource,
     private val breedDataBase: CatBreedsDatabase,
-) : RemoteMediator<Int, BreedPreview>() {
+) : RemoteMediator<Int, CatBreedPreview>() {
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, BreedPreview>
+        state: PagingState<Int, CatBreedPreview>
     ): MediatorResult {
         val page = when (loadType) {
             LoadType.REFRESH -> 1
@@ -42,7 +42,7 @@ internal class BreedRemoteMediator(
 
         return try {
             val adjustedPage = page - 1
-            val response = breedRemoteDataSource.fetchBreeds(
+            val response = catBreedRemoteDataSource.fetchCatBreeds(
                 page = adjustedPage,
                 pageSize = state.config.pageSize
             )
@@ -70,7 +70,7 @@ internal class BreedRemoteMediator(
                 }
 
                 breedDataBase.catBreedsRemoteKeyDao().insertAll(keys)
-                breedDataBase.catBreedsDao().insertAll(breeds.map { it.toBreedPreviewEntity() })
+                breedDataBase.catBreedsDao().insertAll(breeds.map { it.toCatBreedPreviewEntity() })
             }
 
             MediatorResult.Success(endOfPaginationReached = endReached)

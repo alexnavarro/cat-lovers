@@ -3,10 +3,10 @@ package com.alexandrenavarro.catlovers.ui.catslist
 import androidx.paging.PagingData
 import app.cash.turbine.test
 import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.repository.BreedRepository
+import com.alexandrenavarro.catlovers.data.repository.CatBreedRepository
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepository
 import com.alexandrenavarro.catlovers.data.util.MainDispatcherRule
-import com.alexandrenavarro.catlovers.domain.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -23,28 +23,28 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class BreedsScreenViewModelTest {
+class CatBreedsScreenViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val breedRepository: BreedRepository = mockk()
+    private val catBreedRepository: CatBreedRepository = mockk()
     private val favoriteRepository: FavoriteRepository = mockk()
 
     @Test
     fun `breeds flow should emit paging data from repository`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         val mockFlow = flowOf(mockPagingData)
 
-        every { breedRepository.getBreeds(any()) } returns mockFlow
+        every { catBreedRepository.getCatBreeds(any()) } returns mockFlow
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.breeds.test {
             val emission = awaitItem()
             assertNotNull(emission)
 
-            verify(exactly = 1) { breedRepository.getBreeds(any()) }
+            verify(exactly = 1) { catBreedRepository.getCatBreeds(any()) }
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -52,12 +52,12 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `onFavoriteClicked when adding favorite and remote success emits FavoriteAdded`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
-        coEvery { breedRepository.getBreeds(any()) } returns flowOf(mockPagingData)
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
+        coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
 
         coEvery { favoriteRepository.addFavorite("img-1") } returns Result.Success(Unit)
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.events.test {
             sut.onFavoriteClicked("img-1", isFavorite = false)
@@ -72,12 +72,12 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `onFavoriteClicked when removing favorite and remote success emits FavoriteRemoved`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
-        coEvery { breedRepository.getBreeds(any()) } returns flowOf(mockPagingData)
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
+        coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
 
         coEvery { favoriteRepository.deleteFavorite("img-2") } returns Result.Success(Unit)
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.events.test {
             sut.onFavoriteClicked("img-2", isFavorite = true)
@@ -92,12 +92,12 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `onFavoriteClicked when addFavorite returns Error emits Error message`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
-        coEvery { breedRepository.getBreeds(any()) } returns flowOf(mockPagingData)
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
+        coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
 
         coEvery { favoriteRepository.addFavorite("img-3") } returns Result.Error(Exception("Remote failure"))
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.events.test {
             sut.onFavoriteClicked("img-3", isFavorite = false)
@@ -113,12 +113,12 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `onFavoriteClicked when deleteFavorite returns NetworkError emits network message`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
-        coEvery { breedRepository.getBreeds(any()) } returns flowOf(mockPagingData)
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
+        coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
 
         coEvery { favoriteRepository.deleteFavorite("img-4") } returns Result.NetworkError(Exception("No net"))
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.events.test {
             sut.onFavoriteClicked("img-4", isFavorite = true)
@@ -134,18 +134,18 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `breeds flow should call repository with initial null query`() = runTest {
-        val mockPagingData = PagingData.from(listOf<BreedPreview>())
+        val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         val mockFlow = flowOf(mockPagingData)
 
-        every { breedRepository.getBreeds(null) } returns mockFlow
+        every { catBreedRepository.getCatBreeds(null) } returns mockFlow
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.breeds.test {
             val emission = awaitItem()
             assertNotNull(emission)
 
-            verify(exactly = 1) { breedRepository.getBreeds(null) }
+            verify(exactly = 1) { catBreedRepository.getCatBreeds(null) }
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -153,13 +153,13 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `setQuery updates query and calls repository with new value after debounce`() = runTest {
-        val flowNull = flowOf(PagingData.from(listOf<BreedPreview>()))
-        val flowSiamese = flowOf(PagingData.from(listOf<BreedPreview>()))
+        val flowNull = flowOf(PagingData.from(listOf<CatBreedPreview>()))
+        val flowSiamese = flowOf(PagingData.from(listOf<CatBreedPreview>()))
 
-        every { breedRepository.getBreeds(null) } returns flowNull
-        every { breedRepository.getBreeds("siamese") } returns flowSiamese
+        every { catBreedRepository.getCatBreeds(null) } returns flowNull
+        every { catBreedRepository.getCatBreeds("siamese") } returns flowSiamese
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.breeds.test {
             awaitItem()
@@ -168,7 +168,7 @@ class BreedsScreenViewModelTest {
             advanceTimeBy(300)
 
             awaitItem()
-            verify { breedRepository.getBreeds("siamese") }
+            verify { catBreedRepository.getCatBreeds("siamese") }
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -176,10 +176,10 @@ class BreedsScreenViewModelTest {
 
     @Test
     fun `setQuery blank becomes null and calls repository with null`() = runTest {
-        every { breedRepository.getBreeds(null) } returns flowOf(PagingData.from(listOf()))
-        every { breedRepository.getBreeds("tmp") } returns flowOf(PagingData.from(listOf()))
+        every { catBreedRepository.getCatBreeds(null) } returns flowOf(PagingData.from(listOf()))
+        every { catBreedRepository.getCatBreeds("tmp") } returns flowOf(PagingData.from(listOf()))
 
-        val sut = BreedsScreenViewModel(breedRepository, favoriteRepository)
+        val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 
         sut.breeds.test {
             awaitItem()
@@ -192,7 +192,7 @@ class BreedsScreenViewModelTest {
             advanceTimeBy(300)
             awaitItem()
 
-            verify(atLeast = 1) { breedRepository.getBreeds(null) }
+            verify(atLeast = 1) { catBreedRepository.getCatBreeds(null) }
 
             cancelAndIgnoreRemainingEvents()
         }

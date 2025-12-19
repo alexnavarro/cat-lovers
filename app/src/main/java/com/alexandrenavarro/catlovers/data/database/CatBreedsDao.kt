@@ -6,7 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.alexandrenavarro.catlovers.data.database.model.CatBreedPreviewEntity
-import com.alexandrenavarro.catlovers.domain.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 
 @Dao
 interface CatBreedsDao {
@@ -23,7 +23,7 @@ interface CatBreedsDao {
         ORDER BY cat.name
     """,
     )
-    fun pagingSource(query: String?): PagingSource<Int, BreedPreview>
+    fun pagingSource(query: String?): PagingSource<Int, CatBreedPreview>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<CatBreedPreviewEntity>)

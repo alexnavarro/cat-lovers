@@ -1,7 +1,7 @@
 package com.alexandrenavarro.catlovers.data.network
 
-import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedDetail
-import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
+import com.alexandrenavarro.catlovers.data.network.model.NetworkCatBreedDetail
+import com.alexandrenavarro.catlovers.data.network.model.NetworkCatBreedPreview
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertSame
@@ -13,34 +13,34 @@ import retrofit2.Response
 import java.io.IOException
 
 
-class BreedRemoteDataSourceImplTest {
+class CatBreedRemoteDataSourceImplTest {
 
-    private val breedApi = mockk<BreedApi>()
-    private val response: Response<List<NetworkBreedPreview>> = mockk()
-    private val breedDetailResponse: Response<NetworkBreedDetail> = mockk()
+    private val catBreedApi = mockk<CatBreedApi>()
+    private val response: Response<List<NetworkCatBreedPreview>> = mockk()
+    private val breedDetailResponse: Response<NetworkCatBreedDetail> = mockk()
 
-    private lateinit var sut: BreedRemoteDataSourceImpl
+    private lateinit var sut: CatBreedRemoteDataSourceImpl
 
     @Before
     fun setup() {
-        sut = BreedRemoteDataSourceImpl(breedApi)
+        sut = CatBreedRemoteDataSourceImpl(catBreedApi)
     }
 
     @Test
     fun `given fetchBreeds is called when there is a network error then return a network error`() =
         runTest {
-            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } throws IOException()
+            coEvery { catBreedApi.fetchCatBreeds(limit = 10, page = 0) } throws IOException()
 
-            val result = sut.fetchBreeds()
+            val result = sut.fetchCatBreeds()
             assert(result is Result.NetworkError)
         }
 
     @Test
     fun `given fetchBreeds call is called when there is a unknown error then return a network error`() =
         runTest {
-            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } throws Exception()
+            coEvery { catBreedApi.fetchCatBreeds(limit = 10, page = 0) } throws Exception()
 
-            val result = sut.fetchBreeds()
+            val result = sut.fetchCatBreeds()
             assert(result is Result.NetworkError)
         }
 
@@ -49,9 +49,9 @@ class BreedRemoteDataSourceImplTest {
         runTest {
             coEvery { response.isSuccessful } returns false
             coEvery { response.message() } returns "Error error"
-            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+            coEvery { catBreedApi.fetchCatBreeds(limit = 10, page = 0) } returns response
 
-            val result = sut.fetchBreeds()
+            val result = sut.fetchCatBreeds()
             assert(result is Result.Error)
         }
 
@@ -60,9 +60,9 @@ class BreedRemoteDataSourceImplTest {
         runTest {
             coEvery { response.isSuccessful } returns true
             coEvery { response.body() } returns emptyList()
-            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+            coEvery { catBreedApi.fetchCatBreeds(limit = 10, page = 0) } returns response
 
-            val result = sut.fetchBreeds() as Result.Success
+            val result = sut.fetchCatBreeds() as Result.Success
 
             assertTrue(result.data.isEmpty())
         }
@@ -70,13 +70,13 @@ class BreedRemoteDataSourceImplTest {
     @Test
     fun `given fetch call is called twice when there is a valid response then should call the api only once`() =
         runTest {
-            val breeds = listOf(NetworkBreedPreview("1", "name", mockk(), lifeSpan = "10 - 20"))
+            val breeds = listOf(NetworkCatBreedPreview("1", "name", mockk(), lifeSpan = "10 - 20"))
 
             coEvery { response.isSuccessful } returns true
             coEvery { response.body() } returns breeds
-            coEvery { breedApi.fetchBreeds(limit = 10, page = 0) } returns response
+            coEvery { catBreedApi.fetchCatBreeds(limit = 10, page = 0) } returns response
 
-            val result = sut.fetchBreeds() as Result.Success
+            val result = sut.fetchCatBreeds() as Result.Success
 
             assertSame(breeds, result.data)
         }
@@ -84,18 +84,18 @@ class BreedRemoteDataSourceImplTest {
     @Test
     fun `given fetchBreed called when there is a network error then return a network error`() =
         runTest {
-            coEvery { breedApi.fetchBreed("1") } throws IOException()
+            coEvery { catBreedApi.fetchCatBreed("1") } throws IOException()
 
-            val result = sut.fetchBreed("1")
+            val result = sut.fetchCatBreed("1")
             assert(result is Result.NetworkError)
         }
 
     @Test
     fun `given fetchBreed called when there is an unknown error then return a network error`() =
         runTest {
-            coEvery { breedApi.fetchBreed("1") } throws Exception()
+            coEvery { catBreedApi.fetchCatBreed("1") } throws Exception()
 
-            val result = sut.fetchBreed("1")
+            val result = sut.fetchCatBreed("1")
             assert(result is Result.NetworkError)
         }
 
@@ -104,21 +104,21 @@ class BreedRemoteDataSourceImplTest {
         runTest {
             coEvery { breedDetailResponse.isSuccessful } returns false
             coEvery { breedDetailResponse.message() } returns "HTTP failure"
-            coEvery { breedApi.fetchBreed("1") } returns breedDetailResponse
+            coEvery { catBreedApi.fetchCatBreed("1") } returns breedDetailResponse
 
-            val result = sut.fetchBreed("1")
+            val result = sut.fetchCatBreed("1")
             assert(result is Result.Error)
         }
 
     @Test
     fun `given fetchBreed called when response is successful and body present then return success`() =
         runTest {
-            val detail = mockk<NetworkBreedDetail>()
+            val detail = mockk<NetworkCatBreedDetail>()
             coEvery { breedDetailResponse.isSuccessful } returns true
             coEvery { breedDetailResponse.body() } returns detail
-            coEvery { breedApi.fetchBreed("1") } returns breedDetailResponse
+            coEvery { catBreedApi.fetchCatBreed("1") } returns breedDetailResponse
 
-            val result = sut.fetchBreed("1") as Result.Success
+            val result = sut.fetchCatBreed("1") as Result.Success
 
             assertSame(detail, result.data)
         }
@@ -128,9 +128,9 @@ class BreedRemoteDataSourceImplTest {
         runTest {
             coEvery { breedDetailResponse.isSuccessful } returns true
             coEvery { breedDetailResponse.body() } returns null
-            coEvery { breedApi.fetchBreed("1") } returns breedDetailResponse
+            coEvery { catBreedApi.fetchCatBreed("1") } returns breedDetailResponse
 
-            val result = sut.fetchBreed("1")
+            val result = sut.fetchCatBreed("1")
             assertTrue(result is Result.NetworkError)
         }
 }

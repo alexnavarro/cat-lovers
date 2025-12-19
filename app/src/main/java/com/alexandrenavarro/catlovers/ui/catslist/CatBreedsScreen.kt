@@ -67,15 +67,15 @@ import androidx.paging.compose.itemKey
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.alexandrenavarro.catlovers.domain.model.BreedPreview
+import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BreedsScreen(
+fun CatBreedsScreen(
     modifier: Modifier = Modifier,
-    viewModel: BreedsScreenViewModel = hiltViewModel(),
+    viewModel: CatBreedsScreenViewModel = hiltViewModel(),
     onCatClicked: (breedId: String, imageId: String) -> Unit
 ) {
     val breeds = viewModel.breeds.collectAsLazyPagingItems()
@@ -153,7 +153,7 @@ fun BreedsScreen(
             }
 
         ) { padding ->
-            BreedsGrid(
+            CatBreedsGrid(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize(),
@@ -177,9 +177,9 @@ fun BreedsScreen(
 }
 
 @Composable
-fun BreedsGrid(
+fun CatBreedsGrid(
     modifier: Modifier = Modifier,
-    breeds: LazyPagingItems<BreedPreview>,
+    breeds: LazyPagingItems<CatBreedPreview>,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
     onCatClicked: (breedId: String, imageId: String) -> Unit
 ) {
@@ -212,9 +212,9 @@ fun BreedsGrid(
 @PreviewScreenSizes
 @Preview(showBackground = true)
 @Composable
-fun BreedsGridPreview() {
+fun CatBreedsGridPreview() {
     val breeds = List(20) { idx ->
-        BreedPreview(
+        CatBreedPreview(
             name = "Abyssinian",
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
@@ -224,7 +224,7 @@ fun BreedsGridPreview() {
     }
 
     CatLoversTheme {
-        BreedsGrid(
+        CatBreedsGrid(
             breeds = breeds.collectAsMutableLazyPagingItems(),
             onFavoriteClick = { _, _ -> },
             onCatClicked = { _, _ -> }
@@ -236,7 +236,7 @@ fun BreedsGridPreview() {
 @Composable
 fun CatCard(
     modifier: Modifier = Modifier,
-    breed: BreedPreview,
+    breed: CatBreedPreview,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
     onCatClicked: (breedId: String, imageId: String) -> Unit,
 ) {
@@ -320,7 +320,7 @@ fun CatCard(
 fun CatCardPreview() {
     CatLoversTheme {
         CatCard(
-            onFavoriteClick = { _, _ -> }, breed = BreedPreview(
+            onFavoriteClick = { _, _ -> }, breed = CatBreedPreview(
                 name = "Abyssinian",
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 imageId = "0XYvRd7oD",

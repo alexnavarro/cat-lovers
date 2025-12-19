@@ -1,7 +1,7 @@
 package com.alexandrenavarro.catlovers.data.di
 
-import com.alexandrenavarro.catlovers.data.repository.BreedRepository
-import com.alexandrenavarro.catlovers.data.repository.BreedRepositoryImpl
+import com.alexandrenavarro.catlovers.data.repository.CatBreedRepository
+import com.alexandrenavarro.catlovers.data.repository.CatBreedRepositoryImpl
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepositoryImpl
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepository
 import dagger.Binds
@@ -18,5 +18,5 @@ abstract class DataModule {
 
 
     @Binds
-    internal abstract fun bindsBreedRepository(breedRepository: BreedRepositoryImpl): BreedRepository
+    internal abstract fun bindsBreedRepository(breedRepository: CatBreedRepositoryImpl): CatBreedRepository
 }

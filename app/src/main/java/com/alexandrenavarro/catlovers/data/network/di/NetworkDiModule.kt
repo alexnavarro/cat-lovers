@@ -1,10 +1,10 @@
 package com.alexandrenavarro.catlovers.data.network.di
 
 import com.alexandrenavarro.catlovers.BuildConfig
-import com.alexandrenavarro.catlovers.data.network.AuthHeaderInterceptor
-import com.alexandrenavarro.catlovers.data.network.BreedApi
-import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
-import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSourceImpl
+import com.alexandrenavarro.catlovers.data.network.interceptor.AuthHeaderInterceptor
+import com.alexandrenavarro.catlovers.data.network.CatBreedApi
+import com.alexandrenavarro.catlovers.data.network.CatBreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.CatBreedRemoteDataSourceImpl
 import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSourceImpl
 import com.alexandrenavarro.catlovers.data.network.FavoriteApi
 import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
@@ -47,8 +47,8 @@ object NetworkDiModule {
 
     @Provides
     @Singleton
-    fun provideBreedsApiService(retrofit: Retrofit): BreedApi =
-        retrofit.create(BreedApi::class.java)
+    fun provideBreedsApiService(retrofit: Retrofit): CatBreedApi =
+        retrofit.create(CatBreedApi::class.java)
 
     @Provides
     @Singleton
@@ -57,8 +57,8 @@ object NetworkDiModule {
 
     @Provides
     @Singleton
-    fun provideBreedRemoteDataSource(breedApi: BreedApi): BreedRemoteDataSource =
-        BreedRemoteDataSourceImpl(breedApi)
+    fun provideBreedRemoteDataSource(catBreedApi: CatBreedApi): CatBreedRemoteDataSource =
+        CatBreedRemoteDataSourceImpl(catBreedApi)
 
     @Provides
     @Singleton

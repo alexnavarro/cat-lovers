@@ -8,10 +8,10 @@ import androidx.paging.RemoteMediator
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
-import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.CatBreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedImage
-import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
+import com.alexandrenavarro.catlovers.data.network.model.NetworkCatBreedPreview
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -23,7 +23,7 @@ import org.junit.Test
 @OptIn(ExperimentalPagingApi::class)
 class BreedRemoteMediatorTest {
 
-    private lateinit var breedRemoteDataSource: BreedRemoteDataSource
+    private lateinit var catBreedRemoteDataSource: CatBreedRemoteDataSource
     private lateinit var breedDataBase: CatBreedsDatabase
 
     @Before
@@ -42,10 +42,10 @@ class BreedRemoteMediatorTest {
 
     @Test
     fun givenEmptyDatabaseWhenRefreshThenDataIsInserted() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(
+        catBreedRemoteDataSource = FakeCatBreedRemoteDataSource(
             Result.Success(
                 listOf(
-                    NetworkBreedPreview(
+                    NetworkCatBreedPreview(
                         id = "3",
                         name = "Abyssinian",
                         image = NetworkBreedImage(
@@ -54,7 +54,7 @@ class BreedRemoteMediatorTest {
                         ),
                         lifeSpan = "14 - 15"
                     ),
-                    NetworkBreedPreview(
+                    NetworkCatBreedPreview(
                         id = "4",
                         name = "Test",
                         image = NetworkBreedImage(
@@ -67,7 +67,7 @@ class BreedRemoteMediatorTest {
             )
         )
 
-        val sut = BreedRemoteMediator(breedRemoteDataSource, breedDataBase)
+        val sut = CatBreedRemoteMediator(catBreedRemoteDataSource, breedDataBase)
 
         val result = sut.load(
             LoadType.REFRESH,
@@ -80,9 +80,9 @@ class BreedRemoteMediatorTest {
 
     @Test
     fun givenEmptyDatabaseWhenRefreshAndResultIsEmptyThenDataIsNotInserted() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+        catBreedRemoteDataSource = FakeCatBreedRemoteDataSource(Result.Success(emptyList()))
 
-        val sut = BreedRemoteMediator(breedRemoteDataSource, breedDataBase)
+        val sut = CatBreedRemoteMediator(catBreedRemoteDataSource, breedDataBase)
 
         val result = sut.load(
             LoadType.REFRESH,
@@ -95,9 +95,9 @@ class BreedRemoteMediatorTest {
 
     @Test
     fun givenEmptyDatabaseWhenRefreshAndResultIsErrorThenResultIsError() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Error(Exception()))
+        catBreedRemoteDataSource = FakeCatBreedRemoteDataSource(Result.Error(Exception()))
 
-        val sut = BreedRemoteMediator(breedRemoteDataSource, breedDataBase)
+        val sut = CatBreedRemoteMediator(catBreedRemoteDataSource, breedDataBase)
 
         val result = sut.load(
             LoadType.REFRESH,

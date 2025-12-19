@@ -4,12 +4,12 @@ import androidx.paging.testing.asSnapshot
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.alexandrenavarro.catlovers.data.database.CatBreedsDatabase
-import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.CatBreedRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedDetail
+import com.alexandrenavarro.catlovers.data.network.model.NetworkCatBreedDetail
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedImage
-import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
-import com.alexandrenavarro.catlovers.domain.model.BreedDetail
+import com.alexandrenavarro.catlovers.data.network.model.NetworkCatBreedPreview
+import com.alexandrenavarro.catlovers.domain.model.CatBreedDetail
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.fail
@@ -21,7 +21,7 @@ import java.io.IOException
 
 class BreedRepositoryImplTest {
 
-    private lateinit var breedRemoteDataSource: BreedRemoteDataSource
+    private lateinit var catBreedRemoteDataSource: CatBreedRemoteDataSource
     private lateinit var breedDataBase: CatBreedsDatabase
 
     @Before
@@ -39,24 +39,24 @@ class BreedRepositoryImplTest {
 
     @Test
     fun givenRepositoryJustCreatedWhenObservingBreedsThenEmitsEmptyList() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(Result.Success(emptyList()))
+        catBreedRemoteDataSource = FakeCatBreedRemoteDataSource(Result.Success(emptyList()))
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = breedRemoteDataSource,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = catBreedRemoteDataSource,
             breedDataBase = breedDataBase,
         )
 
-        val items = sut.getBreeds(null).asSnapshot {}
+        val items = sut.getCatBreeds(null).asSnapshot {}
 
         assertEquals(0, items.size)
     }
 
     @Test
     fun givenObservingBreedsWhenDatabaseIsEmptyThenShouldFetchFromRemoteAndEmit() = runTest {
-        breedRemoteDataSource = FakeBreedRemoteDataSource(
+        catBreedRemoteDataSource = FakeCatBreedRemoteDataSource(
             Result.Success(
                 listOf(
-                    NetworkBreedPreview(
+                    NetworkCatBreedPreview(
                         "3",
                         "name",
                         image = NetworkBreedImage(
@@ -65,7 +65,7 @@ class BreedRepositoryImplTest {
                         ),
                         lifeSpan = "14 - 15"
                     ),
-                    NetworkBreedPreview(
+                    NetworkCatBreedPreview(
                         "1",
                         "test",
                         image = NetworkBreedImage(
@@ -78,12 +78,12 @@ class BreedRepositoryImplTest {
             )
         )
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = breedRemoteDataSource,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = catBreedRemoteDataSource,
             breedDataBase = breedDataBase,
         )
 
-        val items = sut.getBreeds(null).asSnapshot()
+        val items = sut.getCatBreeds(null).asSnapshot()
         assertEquals(2, items.size)
         assertEquals("3", items.first().id)
         assertEquals("name", items.first().name)
@@ -93,16 +93,16 @@ class BreedRepositoryImplTest {
 
     @Test
     fun givenGetBreedsWhenRemoteReturnsErrorThenShouldEmitError() = runTest {
-        breedRemoteDataSource =
-            FakeBreedRemoteDataSource(Result.Error(Exception("Connection error")))
+        catBreedRemoteDataSource =
+            FakeCatBreedRemoteDataSource(Result.Error(Exception("Connection error")))
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = breedRemoteDataSource,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = catBreedRemoteDataSource,
             breedDataBase = breedDataBase,
         )
 
         try {
-            sut.getBreeds(null).asSnapshot()
+            sut.getCatBreeds(null).asSnapshot()
             fail("The Snapshot should be thrown")
         } catch (e: Exception) {
             assertEquals("Connection error", e.message)
@@ -111,7 +111,7 @@ class BreedRepositoryImplTest {
 
     @Test
     fun givenFetchBreedWhenRemoteReturnsSuccessThenRepositoryReturnsSuccess() = runTest {
-        val networkDetail = NetworkBreedDetail(
+        val networkDetail = NetworkCatBreedDetail(
             id = "1",
             name = "name",
             description = "description",
@@ -120,30 +120,30 @@ class BreedRepositoryImplTest {
             imageId = "imageId"
         )
 
-        val remote = FakeBreedRemoteDataSource(breedDetail=Result.Success(networkDetail))
+        val remote = FakeCatBreedRemoteDataSource(breedDetail=Result.Success(networkDetail))
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = remote,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = remote,
             breedDataBase = breedDataBase
         )
 
-        val result = sut.getBreedDetail("1")
+        val result = sut.getCatBreedDetail("1")
         assertTrue(result is Result.Success)
         val data = (result as Result.Success).data
-        assertTrue(data is BreedDetail)
+        assertTrue(data is CatBreedDetail)
     }
 
     @Test
     fun givenFetchBreedWhenRemoteReturnsErrorThenRepositoryReturnsErrorWithSameMessage() = runTest {
         val ex = Exception("Connection error")
-        val remote = FakeBreedRemoteDataSource(breedDetail=Result.Error(ex))
+        val remote = FakeCatBreedRemoteDataSource(breedDetail=Result.Error(ex))
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = remote,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = remote,
             breedDataBase = breedDataBase
         )
 
-        val result = sut.getBreedDetail("1")
+        val result = sut.getCatBreedDetail("1")
         assertTrue(result is Result.Error)
         val error = result as Result.Error
         assertEquals("Connection error", error.exception.message)
@@ -152,14 +152,14 @@ class BreedRepositoryImplTest {
     @Test
     fun givenFetchBreedWhenRemoteReturnsNetworkErrorThenRepositoryReturnsNetworkError() = runTest {
         val ioEx = IOException("io")
-        val remote = FakeBreedRemoteDataSource(breedDetail=Result.NetworkError(ioEx))
+        val remote = FakeCatBreedRemoteDataSource(breedDetail=Result.NetworkError(ioEx))
 
-        val sut = BreedRepositoryImpl(
-            breedRemoteDataSource = remote,
+        val sut = CatBreedRepositoryImpl(
+            catBreedRemoteDataSource = remote,
             breedDataBase = breedDataBase
         )
 
-        val result = sut.getBreedDetail("1")
+        val result = sut.getCatBreedDetail("1")
         assertTrue(result is Result.NetworkError)
         val netErr = result as Result.NetworkError
         assertEquals("io", netErr.exception.message)

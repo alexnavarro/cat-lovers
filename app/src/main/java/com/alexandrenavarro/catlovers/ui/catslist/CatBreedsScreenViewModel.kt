@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.alexandrenavarro.catlovers.data.network.Result
-import com.alexandrenavarro.catlovers.data.repository.BreedRepository
+import com.alexandrenavarro.catlovers.data.repository.CatBreedRepository
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-class BreedsScreenViewModel @Inject constructor(
-    private val breedRepository: BreedRepository,
+class CatBreedsScreenViewModel @Inject constructor(
+    private val catBreedRepository: CatBreedRepository,
     private val favoriteRepository: FavoriteRepository,
 ): ViewModel()  {
     private val _query = MutableStateFlow<String?>(null)
@@ -33,7 +33,7 @@ class BreedsScreenViewModel @Inject constructor(
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest { q ->
-            breedRepository.getBreeds(q)
+            catBreedRepository.getCatBreeds(q)
         }
         .cachedIn(viewModelScope)
 

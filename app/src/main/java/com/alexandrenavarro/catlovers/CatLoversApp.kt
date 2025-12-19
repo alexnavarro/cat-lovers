@@ -15,8 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
-import com.alexandrenavarro.catlovers.ui.catslist.BreedsScreen
-import com.alexandrenavarro.catlovers.ui.details.BreedDetailScreen
+import com.alexandrenavarro.catlovers.ui.catslist.CatBreedsScreen
+import com.alexandrenavarro.catlovers.ui.details.CatBreedDetailScreen
 import com.alexandrenavarro.catlovers.ui.favorites.FavoritesScreen
 
 @Serializable
@@ -63,7 +63,7 @@ fun CatLoversApp() {
             startDestination = BreedsScreen
         ) {
             composable<BreedsScreen> {
-                BreedsScreen(onCatClicked = { breedId, imageId ->
+                CatBreedsScreen(onCatClicked = { breedId, imageId ->
                     navController.navigate(BreedDetail(breedId = breedId, imageId = imageId))
                 })
             }
@@ -75,7 +75,7 @@ fun CatLoversApp() {
             }
 
             composable<BreedDetail> {  _->
-                BreedDetailScreen(
+                CatBreedDetailScreen(
                     onBack = { navController.popBackStack() }
                 )
             }

@@ -18,5 +18,5 @@ interface BreedApi {
     @GET("/v1/breeds/{id}")
     suspend fun fetchBreed(
         @Path("id") id: String
-    ): Response<List<NetworkBreedDetail>>
+    ): Response<NetworkBreedDetail>
 }

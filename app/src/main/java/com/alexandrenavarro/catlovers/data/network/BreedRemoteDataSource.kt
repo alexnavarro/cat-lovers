@@ -12,7 +12,7 @@ interface BreedRemoteDataSource {
         pageSize: Int = 10
     ): Result<List<NetworkBreedPreview>>
 
-    suspend fun fetchBreed(id: String): Result<List<NetworkBreedDetail>>
+    suspend fun fetchBreed(id: String): Result<NetworkBreedDetail>
 }
 
 internal class BreedRemoteDataSourceImpl(
@@ -25,7 +25,7 @@ internal class BreedRemoteDataSourceImpl(
     ): Result<List<NetworkBreedPreview>> =
         safeApiCall { breedApi.fetchBreeds(limit = pageSize, page = page) }
 
-    override suspend fun fetchBreed(id: String): Result<List<NetworkBreedDetail>> =
+    override suspend fun fetchBreed(id: String): Result<NetworkBreedDetail> =
         safeApiCall { breedApi.fetchBreed(id) }
 }
 

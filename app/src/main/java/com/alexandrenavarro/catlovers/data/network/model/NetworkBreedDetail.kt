@@ -1,5 +1,6 @@
 package com.alexandrenavarro.catlovers.data.network.model
 
+import com.alexandrenavarro.catlovers.domain.model.BreedDetail
 import com.google.gson.annotations.SerializedName
 
 data class NetworkBreedDetail(
@@ -15,4 +16,14 @@ data class NetworkBreedDetail(
     val description: String,
     @SerializedName("temperament")
     val temperament: String,
+)
+
+fun NetworkBreedDetail.toExternalModel() = BreedDetail(
+    id = id,
+    name = name,
+    imageUrl = image?.imageUrl,
+    imageId = image?.id,
+    origin = origin,
+    description = description,
+    temperament = temperament
 )

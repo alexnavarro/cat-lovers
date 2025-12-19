@@ -6,6 +6,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
 import com.alexandrenavarro.catlovers.data.network.BreedRemoteDataSource
+import com.alexandrenavarro.catlovers.data.network.Result
+import com.alexandrenavarro.catlovers.data.network.model.toExternalModel
+import com.alexandrenavarro.catlovers.domain.model.BreedDetail
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -13,7 +16,7 @@ import javax.inject.Inject
 internal class BreedRepositoryImpl @Inject constructor(
     private val breedRemoteDataSource: BreedRemoteDataSource,
     private val breedDataBase: BreedsDatabase,
-): BreedRepository {
+) : BreedRepository {
 
     @OptIn(ExperimentalPagingApi::class)
     override fun getBreeds(query: String?): Flow<PagingData<BreedPreview>> {
@@ -35,6 +38,22 @@ internal class BreedRepositoryImpl @Inject constructor(
                     breedDataBase.breedsDao().pagingSource(query)
                 }
             ).flow
+        }
+    }
+
+    override suspend fun getBreedDetail(breedId: String): Result<BreedDetail> {
+        return when (val breedDetail = breedRemoteDataSource.fetchBreed(breedId)) {
+            is Result.Success -> {
+                Result.Success(breedDetail.data.toExternalModel())
+            }
+
+            is Result.Error -> {
+                Result.Error(breedDetail.exception)
+            }
+
+            is Result.NetworkError -> {
+                Result.NetworkError(breedDetail.exception)
+            }
         }
     }
 }

@@ -2,10 +2,12 @@ package com.alexandrenavarro.catlovers.data.database.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "breeds",
+    indices = [Index(value = ["image_id"], unique = true)]
 )
 data class BreedPreviewEntity(
     @PrimaryKey val id: String,

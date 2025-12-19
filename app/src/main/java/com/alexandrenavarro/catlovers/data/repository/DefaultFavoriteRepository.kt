@@ -4,6 +4,8 @@ import com.alexandrenavarro.catlovers.data.database.FavoriteDao
 import com.alexandrenavarro.catlovers.data.database.model.FavoriteEntity
 import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
+import com.alexandrenavarro.catlovers.domain.model.FavoriteBreed
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultFavoriteRepository @Inject constructor(
@@ -67,4 +69,6 @@ class DefaultFavoriteRepository @Inject constructor(
             return Result.Error(e)
         }
     }
+
+    override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> = favoriteDao.getFavoriteBreeds()
 }

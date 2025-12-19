@@ -3,11 +3,13 @@ package com.alexandrenavarro.catlovers.data.repository
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.alexandrenavarro.catlovers.data.database.BreedsDatabase
+import com.alexandrenavarro.catlovers.data.database.model.BreedPreviewEntity
 import com.alexandrenavarro.catlovers.data.database.model.FavoriteEntity
 import com.alexandrenavarro.catlovers.data.network.Result
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -175,5 +177,44 @@ class DefaultFavoriteRepositoryTest {
             assertEquals("Network during delete", (result as Result.NetworkError).exception.message)
             assertNotNull(dbFavorite)
         }
+
+    @Test
+    fun givenGetFavoriteBreedsWhenNoFavoritesThenReturnsEmptyList() = runTest {
+        val favoriteRemote =
+            FakeFavoriteRemoteDataSource(favoriteResult = Result.Success(1L), deleteFavoriteResult = Result.Success(Unit))
+
+        val sut = DefaultFavoriteRepository(
+            favoriteRemoteDataSource = favoriteRemote,
+            favoriteDao = breedDataBase.favoriteDao()
+        )
+
+        val favorites = sut.getFavoriteBreeds().first()
+        assertTrue(favorites.isEmpty())
+    }
+
+    @Test
+    fun givenGetFavoriteBreedsReturnsInsertedFavoriteMappedToDomainModel() = runTest {
+        breedDataBase.breedsDao().insertAll(listOf(
+            BreedPreviewEntity(id = "444", name = "Abyssinian", imageUrl = "https://cdn2.thecatapi.com/images/O3btzLlsO.png", imageId = "img-5", averageLifeSpan = 18)
+        ))
+        breedDataBase.favoriteDao().insertFavorite(FavoriteEntity(id = 5L, imageId = "img-5"))
+
+        val favoriteRemote =
+            FakeFavoriteRemoteDataSource(favoriteResult = Result.Success(1L), deleteFavoriteResult = Result.Success(Unit))
+
+        val sut = DefaultFavoriteRepository(
+            favoriteRemoteDataSource = favoriteRemote,
+            favoriteDao = breedDataBase.favoriteDao()
+        )
+
+        val favorites = sut.getFavoriteBreeds().first()
+
+        assertEquals(1, favorites.size)
+        val fav = favorites[0]
+        assertEquals(5L, fav.favoriteId)
+        assertEquals("444", fav.breedId)
+        assertEquals(18, fav.lifeSpan)
+        assertEquals("https://cdn2.thecatapi.com/images/O3btzLlsO.png", fav.imageUrl)
+    }
 
 }

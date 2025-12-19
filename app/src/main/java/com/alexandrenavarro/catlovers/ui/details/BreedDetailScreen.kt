@@ -310,28 +310,6 @@ fun CatBreedImage(
     imageUrl: String?,
     modifier: Modifier = Modifier
 ) {
-//    Box(
-//        modifier = modifier
-//            .fillMaxWidth()
-//            .aspectRatio(4f / 3f)
-//            .background(MaterialTheme.colorScheme.surfaceVariant),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        SubcomposeAsyncImage(
-//            model = ImageRequest.Builder(LocalContext.current)
-//                .data(imageUrl)
-//                .crossfade(true)
-//                .size(100)
-//                .build(),
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop,
-//            alignment = Alignment.TopCenter,
-//            modifier = Modifier.fillMaxSize(),
-//            loading = { CatBreedImagePlaceholder() },
-//            error = { CatBreedImagePlaceholder() }
-//        )
-//    }
-
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUrl)

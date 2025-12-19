@@ -1,6 +1,6 @@
 package com.alexandrenavarro.catlovers.data.network
 
-import com.alexandrenavarro.catlovers.data.network.model.NetworkFavoriteResponse
+import com.alexandrenavarro.catlovers.data.network.model.NetworkAddFavoriteResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertTrue
@@ -14,7 +14,7 @@ class FavoriteRemoteDataSourceImplTest {
 
     private val favoriteApi = mockk<FavoriteApi>()
 
-    private val responseFavorite: Response<NetworkFavoriteResponse> = mockk()
+    private val responseFavorite: Response<NetworkAddFavoriteResponse> = mockk()
     private val responseDelete: Response<Unit> = mockk()
 
     private lateinit var sut: FavoriteRemoteDataSourceImpl
@@ -27,7 +27,7 @@ class FavoriteRemoteDataSourceImplTest {
     @Test
     fun `given favorite is called when there is a network error then return a network error`() =
         runTest {
-            coEvery { favoriteApi.favorite(any())} throws IOException()
+            coEvery { favoriteApi.addFavorite(any())} throws IOException()
 
             val result = sut.favorite("xxxx")
             assert(result is Result.NetworkError)
@@ -36,7 +36,7 @@ class FavoriteRemoteDataSourceImplTest {
     @Test
     fun `given favorite call is called when there is a unknown error then return a network error`() =
         runTest {
-            coEvery { favoriteApi.favorite(any()) } throws Exception()
+            coEvery { favoriteApi.addFavorite(any()) } throws Exception()
 
             val result = sut.favorite("xxxx")
             assert(result is Result.NetworkError)
@@ -46,7 +46,7 @@ class FavoriteRemoteDataSourceImplTest {
     fun `given favorite call is called when there is an error on response then return an error`() = runTest {
         coEvery { responseFavorite.isSuccessful } returns false
         coEvery { responseFavorite.message() } returns "Error error"
-        coEvery { favoriteApi.favorite(any()) } returns responseFavorite
+        coEvery { favoriteApi.addFavorite(any()) } returns responseFavorite
 
         val result = sut.favorite("xxxx")
         assert(result is Result.Error)
@@ -56,8 +56,8 @@ class FavoriteRemoteDataSourceImplTest {
     fun `given favorite call is called when there is an empty response then return a success`() =
         runTest {
             coEvery { responseFavorite.isSuccessful } returns true
-            coEvery { responseFavorite.body() } returns NetworkFavoriteResponse(0)
-            coEvery { favoriteApi.favorite(any()) } returns responseFavorite
+            coEvery { responseFavorite.body() } returns NetworkAddFavoriteResponse(0)
+            coEvery { favoriteApi.addFavorite(any()) } returns responseFavorite
 
             val result = sut.favorite("xxxx") as Result.Success
 

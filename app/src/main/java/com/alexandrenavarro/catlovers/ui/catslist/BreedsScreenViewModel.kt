@@ -25,7 +25,6 @@ class BreedsScreenViewModel @Inject constructor(
     private val breedRepository: BreedRepository,
     private val favoriteRepository: FavoriteRepository,
 ): ViewModel()  {
-
     private val _query = MutableStateFlow<String?>(null)
     val query: StateFlow<String?> = _query
 

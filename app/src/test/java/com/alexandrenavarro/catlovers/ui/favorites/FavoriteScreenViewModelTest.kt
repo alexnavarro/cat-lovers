@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.alexandrenavarro.catlovers.data.repository.FavoriteRepository
 import com.alexandrenavarro.catlovers.data.util.MainDispatcherRule
 import com.alexandrenavarro.catlovers.domain.model.FavoriteBreed
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
@@ -11,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -21,6 +23,11 @@ class FavoriteScreenViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val favoriteRepository: FavoriteRepository = mockk()
+
+    @Before
+    fun setUp(){
+        coEvery { favoriteRepository.syncFavorites() } returns Unit
+    }
 
     @Test
     fun `uiState initial value is empty list when repository hasn't emitted`() = runTest {

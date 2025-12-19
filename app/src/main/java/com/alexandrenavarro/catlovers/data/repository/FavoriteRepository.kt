@@ -13,4 +13,6 @@ interface FavoriteRepository {
     fun getFavoriteBreeds(): Flow<List<FavoriteBreed>>
 
     fun isFavorite(imageId: String): Flow<Boolean>
+
+    suspend fun syncFavorites()
 }

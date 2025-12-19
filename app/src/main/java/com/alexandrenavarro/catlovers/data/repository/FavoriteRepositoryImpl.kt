@@ -4,6 +4,7 @@ import com.alexandrenavarro.catlovers.data.database.FavoriteDao
 import com.alexandrenavarro.catlovers.data.database.model.FavoriteEntity
 import com.alexandrenavarro.catlovers.data.network.FavoriteRemoteDataSource
 import com.alexandrenavarro.catlovers.data.network.Result
+import com.alexandrenavarro.catlovers.data.network.model.toEntity
 import com.alexandrenavarro.catlovers.domain.model.FavoriteBreed
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -44,11 +45,23 @@ class FavoriteRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> =
-        favoriteDao.getFavoriteBreeds()
+    override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> = favoriteDao.getFavoriteBreeds()
+
 
     override fun isFavorite(imageId: String): Flow<Boolean> =
         favoriteDao.isFavorite(imageId)
+
+    override suspend fun syncFavorites() {
+        when (val result = favoriteRemoteDataSource.fetchFavorites()) {
+            is Result.Success -> {
+                executeLocalOperation {
+                    favoriteDao.clearAll()
+                    favoriteDao.insertAll(result.data.map { it.toEntity() })
+                }
+            }
+            else -> { /* Here I would call crashlytics to log the error */ }
+        }
+    }
 
     private suspend inline fun executeLocalOperation(
         block: suspend () -> Unit

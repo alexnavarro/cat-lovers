@@ -17,8 +17,8 @@ interface FavoriteDao {
     @Query("DELETE FROM favorites WHERE id = :favoriteId")
     suspend fun deleteById(favoriteId: Long)
 
-    @Query("DELETE FROM favorites WHERE image_id = :imageId")
-    suspend fun deleteByImageId(imageId: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(items: List<FavoriteEntity>)
 
     @Query("SELECT * FROM favorites WHERE image_id = :imageId")
     suspend fun findFavoriteByImageId(imageId: String): FavoriteEntity?
@@ -37,4 +37,7 @@ interface FavoriteDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE image_id = :imageId)")
     fun isFavorite(imageId: String): Flow<Boolean>
+
+    @Query("DELETE FROM favorites")
+    suspend fun clearAll()
 }

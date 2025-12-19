@@ -12,48 +12,46 @@ import com.alexandrenavarro.catlovers.domain.model.BreedDetail
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
-
+@OptIn(ExperimentalPagingApi::class)
 internal class BreedRepositoryImpl @Inject constructor(
     private val breedRemoteDataSource: BreedRemoteDataSource,
     private val breedDataBase: BreedsDatabase,
 ) : BreedRepository {
 
-    @OptIn(ExperimentalPagingApi::class)
-    override fun getBreeds(query: String?): Flow<PagingData<BreedPreview>> {
-        return if (query.isNullOrBlank()) {
-            Pager(
-                config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-                remoteMediator = BreedRemoteMediator(
-                    breedRemoteDataSource,
-                    breedDataBase
-                ),
-                pagingSourceFactory = {
-                    breedDataBase.breedsDao().pagingSource(null)
-                }
-            ).flow
-        } else {
-            Pager(
-                config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-                pagingSourceFactory = {
-                    breedDataBase.breedsDao().pagingSource(query)
-                }
-            ).flow
-        }
+    companion object {
+        private const val PAGE_SIZE = 10
+        private val PAGING_CONFIG = PagingConfig(
+            pageSize = PAGE_SIZE,
+            enablePlaceholders = false
+        )
     }
 
+    private val breedRemoteMediator: BreedRemoteMediator by lazy {
+        BreedRemoteMediator(breedRemoteDataSource, breedDataBase)
+    }
+
+
+    override fun getBreeds(query: String?): Flow<PagingData<BreedPreview>> {
+        return if (query.isNullOrBlank()) {
+            createPagerWithRemoteMediator()
+        } else {
+            createPagerWithLocalSearch(query)
+        }.flow
+    }
+
+    private fun createPagerWithRemoteMediator() = Pager(
+        config = PAGING_CONFIG,
+        remoteMediator = breedRemoteMediator,
+        pagingSourceFactory = { breedDataBase.breedsDao().pagingSource(null) }
+    )
+
+    private fun createPagerWithLocalSearch(query: String) = Pager(
+        config = PAGING_CONFIG,
+        pagingSourceFactory = { breedDataBase.breedsDao().pagingSource(query) }
+    )
+
     override suspend fun getBreedDetail(breedId: String): Result<BreedDetail> {
-        return when (val breedDetail = breedRemoteDataSource.fetchBreed(breedId)) {
-            is Result.Success -> {
-                Result.Success(breedDetail.data.toExternalModel())
-            }
-
-            is Result.Error -> {
-                Result.Error(breedDetail.exception)
-            }
-
-            is Result.NetworkError -> {
-                Result.NetworkError(breedDetail.exception)
-            }
-        }
+        return breedRemoteDataSource.fetchBreed(breedId)
+            .map { it.toExternalModel() }
     }
 }

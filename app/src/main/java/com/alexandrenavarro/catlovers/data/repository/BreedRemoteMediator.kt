@@ -13,50 +13,46 @@ import com.alexandrenavarro.catlovers.data.network.model.toBreedPreviewEntity
 import com.alexandrenavarro.catlovers.domain.model.BreedPreview
 
 @OptIn(ExperimentalPagingApi::class)
-internal class BreedRemoteMediator (
+internal class BreedRemoteMediator(
     private val breedRemoteDataSource: BreedRemoteDataSource,
     private val breedDataBase: BreedsDatabase,
-    ): RemoteMediator<Int, BreedPreview>() {
+) : RemoteMediator<Int, BreedPreview>() {
 
     override suspend fun load(
         loadType: LoadType,
         state: PagingState<Int, BreedPreview>
     ): MediatorResult {
-
         val page = when (loadType) {
             LoadType.REFRESH -> 1
 
             LoadType.PREPEND -> {
                 val firstItem = state.firstItemOrNull()
-                    ?: return MediatorResult.Success(true)
-
-                breedDataBase.breedRemoteKeyDao()
-                    .remoteKeyById(firstItem.id)
-                    ?.prevKey
-                    ?: return MediatorResult.Success(true)
+                    ?: return MediatorResult.Success(endOfPaginationReached = true)
+                getRemoteKeyForFirstItem(firstItem.id)?.prevKey
+                    ?: return MediatorResult.Success(endOfPaginationReached = true)
             }
 
             LoadType.APPEND -> {
                 val lastItem = state.lastItemOrNull()
-                    ?: return MediatorResult.Success(true)
-
-                breedDataBase.breedRemoteKeyDao()
-                    .remoteKeyById(lastItem.id)
-                    ?.nextKey
-                    ?: return MediatorResult.Success(true)
+                    ?: return MediatorResult.Success(endOfPaginationReached = true)
+                getRemoteKeyForLastItem(lastItem.id)?.nextKey
+                    ?: return MediatorResult.Success(endOfPaginationReached = true)
             }
         }
 
-       return try {
+        return try {
+            val adjustedPage = page - 1
+            val response = breedRemoteDataSource.fetchBreeds(
+                page = adjustedPage,
+                pageSize = state.config.pageSize
+            )
 
-           val adjustedPage = page -1
-            val response = breedRemoteDataSource.fetchBreeds(page = adjustedPage, pageSize = state.config.pageSize)
-
-            if(response is Result.Error) {
-                return MediatorResult.Error(response.exception)
+            val breeds = when (response) {
+                is Result.Success -> response.data
+                is Result.Error -> return MediatorResult.Error(response.exception)
+                is Result.NetworkError -> return MediatorResult.Error(response.exception)
             }
 
-            val breeds = (response as Result.Success).data
             val endReached = breeds.isEmpty()
 
             breedDataBase.withTransaction {
@@ -77,10 +73,16 @@ internal class BreedRemoteMediator (
                 breedDataBase.breedsDao().insertAll(breeds.map { it.toBreedPreviewEntity() })
             }
 
-            MediatorResult.Success(endReached)
+            MediatorResult.Success(endOfPaginationReached = endReached)
 
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             MediatorResult.Error(e)
         }
     }
+
+    private suspend fun getRemoteKeyForFirstItem(breedId: String): BreedRemoteKey? =
+        breedDataBase.breedRemoteKeyDao().remoteKeyById(breedId)
+
+    private suspend fun getRemoteKeyForLastItem(breedId: String): BreedRemoteKey? =
+        breedDataBase.breedRemoteKeyDao().remoteKeyById(breedId)
 }

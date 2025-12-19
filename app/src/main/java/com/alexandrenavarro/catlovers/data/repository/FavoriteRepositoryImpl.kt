@@ -11,20 +11,18 @@ import javax.inject.Inject
 class FavoriteRepositoryImpl @Inject constructor(
     private val favoriteRemoteDataSource: FavoriteRemoteDataSource,
     private val favoriteDao: FavoriteDao
-): FavoriteRepository {
+) : FavoriteRepository {
 
     override suspend fun addFavorite(imageId: String): Result<Unit> {
         return when (val result = favoriteRemoteDataSource.favorite(imageId)) {
             is Result.Success -> {
-                try {
+                executeLocalOperation {
                     favoriteDao.insertFavorite(
                         FavoriteEntity(id = result.data, imageId = imageId)
                     )
-                    Result.Success(Unit)
-                } catch (e: Exception) {
-                    Result.Error(e)
                 }
             }
+
             is Result.Error -> result
             is Result.NetworkError -> result
         }
@@ -36,13 +34,11 @@ class FavoriteRepositoryImpl @Inject constructor(
 
         return when (val result = favoriteRemoteDataSource.deleteFavorite(favorite.id)) {
             is Result.Success -> {
-                try {
+                executeLocalOperation {
                     favoriteDao.deleteById(favorite.id)
-                    Result.Success(Unit)
-                } catch (e: Exception) {
-                    Result.Error(e)
                 }
             }
+
             is Result.Error -> result
             is Result.NetworkError -> result
         }
@@ -53,4 +49,15 @@ class FavoriteRepositoryImpl @Inject constructor(
 
     override fun isFavorite(imageId: String): Flow<Boolean> =
         favoriteDao.isFavorite(imageId)
+
+    private suspend inline fun executeLocalOperation(
+        block: suspend () -> Unit
+    ): Result<Unit> {
+        return try {
+            block()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
 }

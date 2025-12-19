@@ -2,8 +2,6 @@ package com.alexandrenavarro.catlovers.data.network
 
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedDetail
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 interface BreedRemoteDataSource {
 
@@ -28,19 +26,3 @@ internal class BreedRemoteDataSourceImpl(
     override suspend fun fetchBreed(id: String): Result<NetworkBreedDetail> =
         safeApiCall { breedApi.fetchBreed(id) }
 }
-
-internal suspend fun <T> safeApiCall(apiCall: suspend () -> retrofit2.Response<T>): Result<T> =
-    withContext(Dispatchers.IO) {
-        try {
-            val response = apiCall()
-
-            if (!response.isSuccessful) {
-                return@withContext Result.Error(Exception(response.message()))
-            }
-
-            Result.Success(response.body() ?: error("Empty response body"))
-
-        } catch (e: Exception) {
-            Result.NetworkError(e)
-        }
-    }

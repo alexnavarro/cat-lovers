@@ -14,63 +14,43 @@ class FavoriteRepositoryImpl @Inject constructor(
 ): FavoriteRepository {
 
     override suspend fun addFavorite(imageId: String): Result<Unit> {
-        return try {
-            when (val result = favoriteRemoteDataSource.favorite(imageId)) {
-                is Result.Success -> {
+        return when (val result = favoriteRemoteDataSource.favorite(imageId)) {
+            is Result.Success -> {
+                try {
                     favoriteDao.insertFavorite(
-                        FavoriteEntity(
-                            id = result.data,
-                            imageId = imageId,
-                        )
+                        FavoriteEntity(id = result.data, imageId = imageId)
                     )
-
                     Result.Success(Unit)
+                } catch (e: Exception) {
+                    Result.Error(e)
                 }
-
-                is Result.Error -> {
-                    Result.Error(result.exception)
-                }
-
-                is Result.NetworkError -> {
-                    Result.NetworkError(result.exception)
-                }
-
             }
-
-        }catch (e: Exception) {
-            return Result.Error(e)
+            is Result.Error -> result
+            is Result.NetworkError -> result
         }
     }
 
     override suspend fun deleteFavorite(imageId: String): Result<Unit> {
-        return try {
-            val favorite =
-                favoriteDao.findFavoriteByImageId(imageId) ?: return Result.Error(
-                    Exception("Favorite not found")
-                )
+        val favorite = favoriteDao.findFavoriteByImageId(imageId)
+            ?: return Result.Error(Exception("Favorite not found"))
 
-            when (val result = favoriteRemoteDataSource.deleteFavorite(favorite.id)) {
-                is Result.Success -> {
+        return when (val result = favoriteRemoteDataSource.deleteFavorite(favorite.id)) {
+            is Result.Success -> {
+                try {
                     favoriteDao.deleteById(favorite.id)
                     Result.Success(Unit)
+                } catch (e: Exception) {
+                    Result.Error(e)
                 }
-
-                is Result.Error -> {
-                    Result.Error(result.exception)
-                }
-
-                is Result.NetworkError -> {
-                    Result.NetworkError(result.exception)
-                }
-
             }
-
-        }catch (e: Exception) {
-            return Result.Error(e)
+            is Result.Error -> result
+            is Result.NetworkError -> result
         }
     }
 
-    override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> = favoriteDao.getFavoriteBreeds()
+    override fun getFavoriteBreeds(): Flow<List<FavoriteBreed>> =
+        favoriteDao.getFavoriteBreeds()
 
-    override fun isFavorite(imageId: String): Flow<Boolean> = favoriteDao.isFavorite(imageId)
+    override fun isFavorite(imageId: String): Flow<Boolean> =
+        favoriteDao.isFavorite(imageId)
 }

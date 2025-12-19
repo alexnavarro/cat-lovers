@@ -58,7 +58,8 @@ class DefaultBreedRepositoryTest {
                         image = NetworkBreedImage(
                             id = "id",
                             imageUrl = "url"
-                        )
+                        ),
+                        lifeSpan = "14 - 15"
                     ),
                     NetworkBreedPreview(
                         "1",
@@ -66,7 +67,8 @@ class DefaultBreedRepositoryTest {
                         image = NetworkBreedImage(
                             id = "5ssss",
                             imageUrl = "url2"
-                        )
+                        ),
+                        lifeSpan = "14 - 24"
                     )
                 )
             )

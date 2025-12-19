@@ -51,7 +51,8 @@ class BreedRemoteMediatorTest {
                         image = NetworkBreedImage(
                             id = "id",
                             imageUrl = "url"
-                        )
+                        ),
+                        lifeSpan = "14 - 15"
                     ),
                     NetworkBreedPreview(
                         id = "4",
@@ -59,7 +60,8 @@ class BreedRemoteMediatorTest {
                         image = NetworkBreedImage(
                             id = "id2",
                             imageUrl = "url2"
-                        )
+                        ),
+                        lifeSpan = "14 - 24"
                     )
                 )
             )

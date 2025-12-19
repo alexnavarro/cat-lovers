@@ -32,14 +32,15 @@ class BreedDetailScreenViewModelTest {
     @Test
     fun `uiState when remote returns success emits Success with breed and favorite flag`() = runTest {
         val breedId = "1"
+        val imageId = "1xsed"
         val breedDetail = mockk<BreedDetail>()
         coEvery { breedRepository.getBreedDetail(breedId) } returns Result.Success(breedDetail)
-        every { favoriteRepository.isFavorite(breedId) } returns flowOf(true)
+        every { favoriteRepository.isFavorite(imageId) } returns flowOf(true)
 
         val sut = BreedDetailScreenViewModel(
             favoriteRepository = favoriteRepository,
             breedRepository = breedRepository,
-            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId))
+            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId, "imageId" to imageId))
         )
 
         sut.uiState.test {
@@ -60,13 +61,14 @@ class BreedDetailScreenViewModelTest {
     @Test
     fun `uiState when remote returns error emits Error`() = runTest {
         val breedId = "1"
+        val imageId = "1xsed"
         coEvery { breedRepository.getBreedDetail(breedId) } returns Result.Error(Exception("Remote fail"))
-        every { favoriteRepository.isFavorite(breedId) } returns flowOf(false)
+        every { favoriteRepository.isFavorite(imageId) } returns flowOf(false)
 
         val sut = BreedDetailScreenViewModel(
             favoriteRepository = favoriteRepository,
             breedRepository = breedRepository,
-            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId))
+            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId, "imageId" to imageId))
         )
 
         sut.uiState.test {
@@ -83,13 +85,14 @@ class BreedDetailScreenViewModelTest {
     @Test
     fun `uiState when remote returns network error remains Loading`() = runTest {
         val breedId = "1"
+        val imageId = "1xsed"
         coEvery { breedRepository.getBreedDetail(breedId) } returns Result.NetworkError(Exception("No net"))
         every { favoriteRepository.isFavorite(breedId) } returns flowOf(false)
 
         val sut = BreedDetailScreenViewModel(
             favoriteRepository = favoriteRepository,
             breedRepository = breedRepository,
-            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId))
+            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedId, "imageId" to imageId))
         )
 
         sut.uiState.test {
@@ -119,7 +122,7 @@ class BreedDetailScreenViewModelTest {
         val sut = BreedDetailScreenViewModel(
             favoriteRepository = favoriteRepository,
             breedRepository = breedRepository,
-            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedDetail.id))
+            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedDetail.id, "imageId" to breedDetail.imageId))
         )
 
         sut.uiState.test {
@@ -155,7 +158,7 @@ class BreedDetailScreenViewModelTest {
         val sut = BreedDetailScreenViewModel(
             favoriteRepository = favoriteRepository,
             breedRepository = breedRepository,
-            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedDetail.id))
+            savedStateHandle = SavedStateHandle(mapOf("breedId" to breedDetail.id, "imageId" to breedDetail.imageId))
         )
 
         sut.uiState.test {
@@ -167,8 +170,6 @@ class BreedDetailScreenViewModelTest {
             advanceTimeBy(300)
             cancelAndIgnoreRemainingEvents()
         }
-
-//        sut.onFavoriteToggle(imageId)
 
         coVerify(exactly = 1) { favoriteRepository.deleteFavorite(breedDetail.imageId!!) }
     }

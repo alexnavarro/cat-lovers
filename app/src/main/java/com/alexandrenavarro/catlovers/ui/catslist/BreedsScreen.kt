@@ -76,7 +76,7 @@ import kotlinx.coroutines.flow.flowOf
 fun BreedsScreen(
     modifier: Modifier = Modifier,
     viewModel: BreedsScreenViewModel = hiltViewModel(),
-    onCatClicked: (breedId: String) -> Unit
+    onCatClicked: (breedId: String, imageId: String) -> Unit
 ) {
     val breeds = viewModel.breeds.collectAsLazyPagingItems()
     val query by viewModel.query.collectAsState()
@@ -181,7 +181,7 @@ fun BreedsGrid(
     modifier: Modifier = Modifier,
     breeds: LazyPagingItems<BreedPreview>,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
-    onCatClicked: (breedId: String) -> Unit
+    onCatClicked: (breedId: String, imageId: String) -> Unit
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
@@ -227,7 +227,7 @@ fun BreedsGridPreview() {
         BreedsGrid(
             breeds = breeds.collectAsMutableLazyPagingItems(),
             onFavoriteClick = { _, _ -> },
-            onCatClicked = {}
+            onCatClicked = { _, _ -> }
         )
     }
 
@@ -238,10 +238,10 @@ fun CatCard(
     modifier: Modifier = Modifier,
     breed: BreedPreview,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
-    onCatClicked: (breedId: String) -> Unit,
+    onCatClicked: (breedId: String, imageId: String) -> Unit,
 ) {
     Card(
-        modifier = modifier.clickable { onCatClicked(breed.id) },
+        modifier = modifier.clickable { onCatClicked(breed.id, breed.imageId ?: "") },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -327,7 +327,7 @@ fun CatCardPreview() {
                 id = "abys",
                 isFavorite = false
             ),
-            onCatClicked = {}
+            onCatClicked = { _, _ -> }
         )
     }
 

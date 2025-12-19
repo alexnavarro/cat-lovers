@@ -28,6 +28,7 @@ interface FavoriteDao {
             f.id AS favoriteId,
             b.id AS breedId,
             b.image_url AS imageUrl,
+             b.image_id AS imageId,
             b.average_life_span AS lifeSpan
         FROM favorites AS f
         INNER JOIN breeds AS b ON f.image_id = b.image_id

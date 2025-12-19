@@ -45,7 +45,7 @@ class FavoriteScreenViewModelTest {
         sut.uiState.test {
             assertEquals(emptyList<FavoriteBreed>(), awaitItem())
 
-            val newList = listOf(FavoriteBreed(favoriteId = 1L, breedId = "img-1", lifeSpan = 10, imageUrl = "https://example.com/tes.gif"))
+            val newList = listOf(FavoriteBreed(favoriteId = 1L, breedId = "img-1", lifeSpan = 10, imageId = "id",imageUrl = "https://example.com/tes.gif"))
             repoFlow.value = newList
 
             assertEquals(newList, awaitItem())
@@ -63,13 +63,13 @@ class FavoriteScreenViewModelTest {
         sut.uiState.test {
             assertEquals(emptyList<FavoriteBreed>(), awaitItem())
 
-            val first = listOf(FavoriteBreed(favoriteId = 1L, breedId = "img-1", lifeSpan = 10, imageUrl = "https://example.com/tes.gif"))
+            val first = listOf(FavoriteBreed(favoriteId = 1L, breedId = "img-1", lifeSpan = 10, imageUrl = "https://example.com/tes.gif",imageId = "id"))
             repoFlow.value = first
             assertEquals(first, awaitItem())
 
             val second = listOf(
-                FavoriteBreed(favoriteId = 2L, breedId = "img-2", lifeSpan = 10, imageUrl = "https://example.com/tes2.gif"),
-                FavoriteBreed(favoriteId = 3L, breedId = "img-5", lifeSpan = 15, imageUrl = "https://example.com/tes5.gif")
+                FavoriteBreed(favoriteId = 2L, breedId = "img-2", lifeSpan = 10, imageUrl = "https://example.com/tes2.gif",imageId = "id3"),
+                FavoriteBreed(favoriteId = 3L, breedId = "img-5", lifeSpan = 15, imageUrl = "https://example.com/tes5.gif",imageId = "id2")
             )
             repoFlow.value = second
             assertEquals(second, awaitItem())

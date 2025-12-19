@@ -117,10 +117,7 @@ class BreedRepositoryImplTest {
             description = "description",
             temperament = "temperament",
             origin = "Portugal",
-            image = NetworkBreedImage(
-                id = "id",
-                imageUrl = "url"
-            )
+            imageId = "imageId"
         )
 
         val remote = FakeBreedRemoteDataSource(breedDetail=Result.Success(networkDetail))

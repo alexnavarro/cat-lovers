@@ -58,7 +58,7 @@ import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
-    onFavoriteClicked: (breedId: String) -> Unit,
+    onFavoriteClicked: (breedId: String, imageId: String) -> Unit,
     viewModel: FavoriteScreenViewModel = hiltViewModel()
 ) {
     val favorites by viewModel.uiState.collectAsStateWithLifecycle()
@@ -87,7 +87,7 @@ fun FavoritesScreen(
 @Composable
 fun FavoritesScreen(
     modifier: Modifier = Modifier,
-    onFavoriteClicked: (breedId: String) -> Unit,
+    onFavoriteClicked: (breedId: String, imageId: String) -> Unit,
     favorites: List<FavoriteBreed>
 ) {
     if (favorites.isEmpty()) {
@@ -119,13 +119,14 @@ fun FavoritesScreenPreview() {
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             favoriteId = index.toLong(),
             lifeSpan = 19,
+            imageId = "0XYvRd7oD",
         )
     }
 
     CatLoversTheme {
         FavoritesScreen(
             favorites = favorites,
-            onFavoriteClicked = {}
+            onFavoriteClicked = { _, _ -> }
         )
     }
 }
@@ -134,10 +135,10 @@ fun FavoritesScreenPreview() {
 fun FavoriteCatCard(
     modifier: Modifier = Modifier,
     favoriteBreed: FavoriteBreed,
-    onFavoriteClicked: (breedId: String) -> Unit,
+    onFavoriteClicked: (breedId: String, imageId: String) -> Unit,
 ) {
     Card(
-        modifier = modifier.clickable { onFavoriteClicked(favoriteBreed.breedId) },
+        modifier = modifier.clickable { onFavoriteClicked(favoriteBreed.breedId, favoriteBreed.imageId) },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -223,8 +224,9 @@ fun FavoriteCatCardPreview() {
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 favoriteId = 44L,
                 lifeSpan = 19,
+                imageId = "0XYvRd7oD"
             ),
-            onFavoriteClicked = {}
+            onFavoriteClicked = { _, _ -> }
         )
     }
 }

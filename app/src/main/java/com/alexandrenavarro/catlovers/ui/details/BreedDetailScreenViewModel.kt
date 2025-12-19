@@ -1,6 +1,5 @@
 package com.alexandrenavarro.catlovers.ui.details
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,12 +33,13 @@ class BreedDetailScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val breedId: String = checkNotNull(savedStateHandle["breedId"])
+    private val imageId: String = checkNotNull(savedStateHandle["imageId"])
 
     private val breedApiFlow = flow {
         emit(breedRepository.getBreedDetail(breedId))
     }
 
-    private val isFavoriteFlow = favoriteRepository.isFavorite(breedId)
+    private val isFavoriteFlow = favoriteRepository.isFavorite(imageId)
 
     val uiState: StateFlow<BreedDetailUiState> = combine(
         breedApiFlow,

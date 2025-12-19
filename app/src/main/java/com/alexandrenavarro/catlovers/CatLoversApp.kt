@@ -14,7 +14,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import com.alexandrenavarro.catlovers.ui.catslist.BreedsScreen
 import com.alexandrenavarro.catlovers.ui.details.BreedDetailScreen
@@ -30,7 +29,7 @@ data object BreedsScreen : AppNavKey
 data object Favorites : AppNavKey
 
 @Serializable
-data class BreedDetail(val breedId: String) : AppNavKey
+data class BreedDetail(val breedId: String, val imageId: String) : AppNavKey
 
 @Composable
 fun CatLoversApp() {
@@ -64,22 +63,20 @@ fun CatLoversApp() {
             startDestination = BreedsScreen
         ) {
             composable<BreedsScreen> {
-                BreedsScreen(onCatClicked = { id ->
-                    navController.navigate(BreedDetail(id))
+                BreedsScreen(onCatClicked = { breedId, imageId ->
+                    navController.navigate(BreedDetail(breedId = breedId, imageId = imageId))
                 })
             }
 
             composable<Favorites> {
-                FavoritesScreen(onFavoriteClicked = { id ->
-                    navController.navigate(BreedDetail(id))
+                FavoritesScreen(onFavoriteClicked = { breedId, imageId ->
+                    navController.navigate(BreedDetail(breedId = breedId, imageId = imageId))
                 })
             }
 
-            composable<BreedDetail> { backStackEntry ->
-                val args = backStackEntry.toRoute<BreedDetail>()
+            composable<BreedDetail> {  _->
                 BreedDetailScreen(
-                    breedId = args.breedId,
-//                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

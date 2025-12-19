@@ -8,8 +8,8 @@ data class NetworkBreedDetail(
     val id: String,
     @SerializedName("name")
     val name: String,
-    @SerializedName("image")
-    val image: NetworkBreedImage?,
+    @SerializedName("reference_image_id")
+    val imageId: String?,
     @SerializedName("origin")
     val origin: String,
     @SerializedName("description")
@@ -21,8 +21,8 @@ data class NetworkBreedDetail(
 fun NetworkBreedDetail.toExternalModel() = BreedDetail(
     id = id,
     name = name,
-    imageUrl = image?.imageUrl,
-    imageId = image?.id,
+    imageUrl = imageId?.let { "https://cdn2.thecatapi.com/images/$it.jpg" },
+    imageId = imageId,
     origin = origin,
     description = description,
     temperament = temperament

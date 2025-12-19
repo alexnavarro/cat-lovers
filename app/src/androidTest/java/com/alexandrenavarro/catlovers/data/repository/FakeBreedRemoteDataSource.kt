@@ -6,7 +6,7 @@ import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedDetail
 import com.alexandrenavarro.catlovers.data.network.model.NetworkBreedPreview
 
 class FakeBreedRemoteDataSource(
-    private val result: Result<List<NetworkBreedPreview>>,
+    private val result: Result<List<NetworkBreedPreview>> = Result.Error(Exception("Not implemented")),
     private val breedDetail: Result<NetworkBreedDetail> = Result.Error(Exception("Not implemented"))
 ) :
     BreedRemoteDataSource {

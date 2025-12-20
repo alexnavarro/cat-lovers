@@ -46,7 +46,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,6 +72,7 @@ import coil3.request.crossfade
 import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
+import kotlin.text.append
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,13 +85,12 @@ fun CatBreedsScreen(
     val query by viewModel.query.collectAsState()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    var isSearchActive by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val appendError = breeds.loadState.append as? LoadState.Error
-    LaunchedEffect(appendError) {
-        appendError?.let {
-            Log.d("Paging", "append = ${breeds.loadState.append}")
+    LaunchedEffect(breeds.loadState.append) {
+        if (breeds.loadState.append is LoadState.Error) {
             val result = snackbarHostState.showSnackbar(
                 message = "Error loading more",
                 actionLabel = "Try again"
@@ -104,10 +106,8 @@ fun CatBreedsScreen(
             when (event) {
                 FavoriteUiEvent.FavoriteAdded ->
                     snackbarHostState.showSnackbar("Added to favorites")
-
                 FavoriteUiEvent.FavoriteRemoved ->
                     snackbarHostState.showSnackbar("Removed from favorites")
-
                 is FavoriteUiEvent.Error ->
                     snackbarHostState.showSnackbar(event.message)
             }
@@ -130,20 +130,15 @@ fun CatBreedsScreen(
 
                     DockedSearchBar(
                         query = query ?: "",
-                        onQueryChange = {
-                            viewModel.setQuery(it)
-                            if (it.isEmpty()) {
-                                focusManager.clearFocus()
-                                keyboardController?.hide()
-                            }
-                        },
+                        onQueryChange = { viewModel.setQuery(it) },
                         onSearch = {
                             viewModel.setQuery(it)
+                            isSearchActive = false
                             focusManager.clearFocus()
                             keyboardController?.hide()
                         },
-                        active = false,
-                        onActiveChange = { },
+                        active = isSearchActive,
+                        onActiveChange = { isSearchActive = it },
                         placeholder = { Text("Search breeds") },
                         modifier = Modifier
                             .fillMaxWidth()

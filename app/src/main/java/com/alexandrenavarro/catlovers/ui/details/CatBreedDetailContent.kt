@@ -42,6 +42,7 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,6 +73,12 @@ fun CatBreedDetailScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        keyboardController?.hide()
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -89,32 +97,31 @@ fun CatBreedDetailScreen(
 
         floatingActionButton = {
             if (state is CatBreedDetailUiState.Success) {
-                val data = (state as CatBreedDetailUiState.Success)
-
-                if (data.catBreedDetail.imageId != null) {
+                val successState = state as CatBreedDetailUiState.Success
+                if (successState.catBreedDetail.imageId != null) {
                     FavoriteFab(
-                        isFavorite = data.isFavorite,
-                        onClick = { viewModel.onFavoriteToggle(data.catBreedDetail.imageId) }
+                        isFavorite = successState.isFavorite,
+                        onClick = viewModel::onFavoriteToggle
                     )
                 }
             }
         }
     ) { padding ->
         when (val s = state) {
-            is CatBreedDetailUiState.Success -> CatBreedDetailScreen(
+            is CatBreedDetailUiState.Success -> CatBreedDetailContent(
                 catBreedDetail = s.catBreedDetail,
                 paddingValues = padding
             )
 
             is CatBreedDetailUiState.Loading -> LoadingCircle()
-            is CatBreedDetailUiState.Error -> ErrorState()
+            is CatBreedDetailUiState.Error -> ErrorState(onRetry = viewModel::retry )
         }
     }
 }
 
 
 @Composable
-fun CatBreedDetailScreen(
+fun CatBreedDetailContent(
     modifier: Modifier = Modifier,
     catBreedDetail: CatBreedDetail,
     paddingValues: PaddingValues
@@ -189,7 +196,7 @@ fun CatBreedDetailScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewCatBreedDetailScreen() {
+fun PreviewCatBreedDetailContent() {
 
     val catBreedDetail = CatBreedDetail(
         id = "1",
@@ -202,7 +209,7 @@ fun PreviewCatBreedDetailScreen() {
     )
 
     CatLoversTheme {
-        CatBreedDetailScreen(
+        CatBreedDetailContent(
             catBreedDetail = catBreedDetail,
             paddingValues = PaddingValues()
         )

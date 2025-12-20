@@ -50,19 +50,19 @@ class CatBreedsScreenViewModel @Inject constructor(
 
             when (result) {
                 is Result.Error -> {
-                    _events.send(
+                    _events.trySend(
                         FavoriteUiEvent.Error("Failed to update favorite")
                     )
                 }
 
                 is Result.NetworkError -> {
-                    _events.send(
+                    _events.trySend(
                         FavoriteUiEvent.Error("No internet connection")
                     )
                 }
 
                 is Result.Success -> {
-                    _events.send(
+                    _events.trySend(
                         if (isFavorite)
                             FavoriteUiEvent.FavoriteRemoved
                         else
@@ -74,7 +74,7 @@ class CatBreedsScreenViewModel @Inject constructor(
     }
 
     fun setQuery(value: String) {
-        _query.value = value.ifBlank { null }
+        _query.value = value.ifBlank { null }//This is necessary to show the initial list
     }
 }
 

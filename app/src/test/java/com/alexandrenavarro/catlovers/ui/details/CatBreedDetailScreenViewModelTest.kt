@@ -130,7 +130,7 @@ class CatBreedDetailScreenViewModelTest {
             assertTrue(state is CatBreedDetailUiState.Loading)
             val second = awaitItem() as CatBreedDetailUiState.Success
             assertFalse(second.isFavorite)
-            sut.onFavoriteToggle(catBreedDetail.imageId!!)
+            sut.onFavoriteToggle()
             advanceTimeBy(300)
 
             cancelAndIgnoreRemainingEvents()
@@ -166,7 +166,7 @@ class CatBreedDetailScreenViewModelTest {
             assertTrue(state is CatBreedDetailUiState.Loading)
             val second = awaitItem() as CatBreedDetailUiState.Success
             assertTrue(second.isFavorite)
-            sut.onFavoriteToggle(catBreedDetail.imageId!!)
+            sut.onFavoriteToggle()
             advanceTimeBy(300)
             cancelAndIgnoreRemainingEvents()
         }

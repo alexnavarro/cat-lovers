@@ -14,22 +14,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.serialization.Serializable
 import com.alexandrenavarro.catlovers.ui.catslist.CatBreedsScreen
 import com.alexandrenavarro.catlovers.ui.details.CatBreedDetailScreen
-import com.alexandrenavarro.catlovers.ui.favorites.FavoritesScreen
+import com.alexandrenavarro.catlovers.ui.favorites.FavoritesScree
+import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface AppNavKey
 
 @Serializable
-data object BreedsScreen : AppNavKey
+data object CatBreedsScreen : AppNavKey
 
 @Serializable
 data object Favorites : AppNavKey
 
 @Serializable
-data class BreedDetail(val breedId: String, val imageId: String) : AppNavKey
+data class CatBreedDetail(val breedId: String, val imageId: String) : AppNavKey
 
 @Composable
 fun CatLoversApp() {
@@ -38,17 +38,17 @@ fun CatLoversApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val showNavBar = currentDestination?.hasRoute<BreedDetail>() == false
+    val isOnDetailScreen = currentDestination?.hasRoute<CatBreedDetail>() == true
 
     NavigationSuiteScaffold(
-        layoutType = if (showNavBar) NavigationSuiteType.NavigationBar
+        layoutType = if (!isOnDetailScreen) NavigationSuiteType.NavigationBar
         else NavigationSuiteType.None, // This hides the bar
         navigationSuiteItems = {
             item(
                 icon = { Icon(Icons.Default.Home, null) },
                 label = { Text("Cats List") },
-                selected = currentDestination?.hasRoute<BreedsScreen>() == true,
-                onClick = { navController.navigate(BreedsScreen) }
+                selected = currentDestination?.hasRoute<CatBreedsScreen>() == true,
+                onClick = { navController.navigate(CatBreedsScreen) }
             )
             item(
                 icon = { Icon(Icons.Default.Favorite, null) },
@@ -60,21 +60,21 @@ fun CatLoversApp() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = BreedsScreen
+            startDestination = CatBreedsScreen
         ) {
-            composable<BreedsScreen> {
+            composable<CatBreedsScreen> {
                 CatBreedsScreen(onCatClicked = { breedId, imageId ->
-                    navController.navigate(BreedDetail(breedId = breedId, imageId = imageId))
+                    navController.navigate(CatBreedDetail(breedId = breedId, imageId = imageId))
                 })
             }
 
             composable<Favorites> {
-                FavoritesScreen(onFavoriteClicked = { breedId, imageId ->
-                    navController.navigate(BreedDetail(breedId = breedId, imageId = imageId))
+                FavoritesScree(onFavoriteClicked = { breedId, imageId ->
+                    navController.navigate(CatBreedDetail(breedId = breedId, imageId = imageId))
                 })
             }
 
-            composable<BreedDetail> {  _->
+            composable<CatBreedDetail> { _->
                 CatBreedDetailScreen(
                     onBack = { navController.popBackStack() }
                 )

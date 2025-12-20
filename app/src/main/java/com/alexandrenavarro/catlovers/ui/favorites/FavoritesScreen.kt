@@ -56,7 +56,7 @@ import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(
+fun FavoritesScree(
     modifier: Modifier = Modifier,
     onFavoriteClicked: (breedId: String, imageId: String) -> Unit,
     viewModel: FavoriteScreenViewModel = hiltViewModel()
@@ -74,7 +74,7 @@ fun FavoritesScreen(
             )
         }
     ) { padding ->
-        FavoritesScreen(
+        FavoritesContent(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize(),
@@ -85,7 +85,7 @@ fun FavoritesScreen(
 }
 
 @Composable
-fun FavoritesScreen(
+fun FavoritesContent(
     modifier: Modifier = Modifier,
     onFavoriteClicked: (breedId: String, imageId: String) -> Unit,
     favorites: List<FavoriteBreed>
@@ -94,7 +94,7 @@ fun FavoritesScreen(
         EmptyFavoritesContent()
     } else {
         LazyVerticalGrid(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier,
             columns = GridCells.Adaptive(minSize = 160.dp),
             contentPadding = PaddingValues(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -112,7 +112,7 @@ fun FavoritesScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun FavoritesScreenPreview() {
+fun FavoritesContentPreview() {
     val favorites = List(2) { index ->
         FavoriteBreed(
             breedId = "abys$index",
@@ -124,7 +124,7 @@ fun FavoritesScreenPreview() {
     }
 
     CatLoversTheme {
-        FavoritesScreen(
+        FavoritesContent(
             favorites = favorites,
             onFavoriteClicked = { _, _ -> }
         )
@@ -246,7 +246,7 @@ fun EmptyFavoritesContent() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "There is no favorites yet",
+            text = "There are no favorites yet",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Gray
         )

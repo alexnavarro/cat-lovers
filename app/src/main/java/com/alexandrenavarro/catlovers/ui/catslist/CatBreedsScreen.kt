@@ -92,7 +92,6 @@ fun CatBreedsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val gridState = rememberSaveable(
-        query,
         saver = LazyGridState.Saver
     ) {
         LazyGridState()

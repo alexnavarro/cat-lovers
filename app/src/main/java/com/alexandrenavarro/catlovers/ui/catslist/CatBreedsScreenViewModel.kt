@@ -41,7 +41,6 @@ class CatBreedsScreenViewModel @Inject constructor(
                 initialValue = emptySet()
             )
 
-
     val breeds = query
         .debounce(300)
         .distinctUntilChanged()

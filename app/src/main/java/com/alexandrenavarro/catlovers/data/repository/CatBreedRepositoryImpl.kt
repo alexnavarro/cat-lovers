@@ -29,8 +29,6 @@ internal class CatBreedRepositoryImpl @Inject constructor(
     private val catBreedRemoteMediator: CatBreedRemoteMediator by lazy {
         CatBreedRemoteMediator(catBreedRemoteDataSource, breedDataBase)
     }
-
-
     override fun getCatBreeds(query: String?): Flow<PagingData<CatBreedPreview>> {
         return if (query.isNullOrBlank()) {
             createPagerWithRemoteMediator()

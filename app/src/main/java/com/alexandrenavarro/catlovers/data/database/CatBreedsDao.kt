@@ -22,7 +22,7 @@ interface CatBreedsDao {
 """)
     fun pagingSource(query: String?): PagingSource<Int, CatBreedPreview>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<CatBreedPreviewEntity>)
 
     @Query("DELETE FROM cat_breeds")

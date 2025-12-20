@@ -1,6 +1,5 @@
 package com.alexandrenavarro.catlovers.ui.catslist
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,23 +19,31 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DockedSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -46,16 +53,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -69,10 +75,8 @@ import androidx.paging.compose.itemKey
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
-import kotlin.text.append
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,10 +88,15 @@ fun CatBreedsScreen(
     val breeds = viewModel.breeds.collectAsLazyPagingItems()
     val query by viewModel.query.collectAsState()
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var isSearchActive by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val gridState = rememberSaveable(
+        query,
+        saver = LazyGridState.Saver
+    ) {
+        LazyGridState()
+    }
 
     LaunchedEffect(breeds.loadState.append) {
         if (breeds.loadState.append is LoadState.Error) {
@@ -105,9 +114,17 @@ fun CatBreedsScreen(
         viewModel.events.collect { event ->
             when (event) {
                 FavoriteUiEvent.FavoriteAdded ->
-                    snackbarHostState.showSnackbar("Added to favorites")
+                    snackbarHostState.showSnackbar(
+                        "Added to favorites",
+                        duration = SnackbarDuration.Short
+                    )
+
                 FavoriteUiEvent.FavoriteRemoved ->
-                    snackbarHostState.showSnackbar("Removed from favorites")
+                    snackbarHostState.showSnackbar(
+                        "Removed from favorites",
+                        duration = SnackbarDuration.Short
+                    )
+
                 is FavoriteUiEvent.Error ->
                     snackbarHostState.showSnackbar(event.message)
             }
@@ -128,22 +145,38 @@ fun CatBreedsScreen(
                         title = { Text("Cat Lovers") }
                     )
 
-                    DockedSearchBar(
-                        query = query ?: "",
-                        onQueryChange = { viewModel.setQuery(it) },
-                        onSearch = {
-                            viewModel.setQuery(it)
-                            isSearchActive = false
-                            focusManager.clearFocus()
-                            keyboardController?.hide()
-                        },
-                        active = isSearchActive,
-                        onActiveChange = { isSearchActive = it },
-                        placeholder = { Text("Search breeds") },
+                    OutlinedTextField(
+                        value = query ?: "",
+                        onValueChange = { viewModel.setQuery(it) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {}
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        placeholder = { Text("Search breeds") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                        trailingIcon = {
+                            if (query?.isNotEmpty() == true) {
+                                IconButton(onClick = { viewModel.setQuery("") }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.5f
+                            ),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = 0.5f
+                            ),
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = {
+                            focusManager.clearFocus()
+                        })
+                    )
                 }
             }
 
@@ -155,6 +188,7 @@ fun CatBreedsScreen(
                 breeds = breeds,
                 onFavoriteClick = viewModel::onFavoriteClicked,
                 onCatClicked = onCatClicked,
+                gridState = gridState,
             )
         }
 
@@ -174,16 +208,18 @@ fun CatBreedsScreen(
 @Composable
 fun CatBreedsGrid(
     modifier: Modifier = Modifier,
-    breeds: LazyPagingItems<CatBreedPreview>,
+    breeds: LazyPagingItems<CatBreedPreviewWithFavorite>,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
-    onCatClicked: (breedId: String, imageId: String) -> Unit
+    onCatClicked: (breedId: String, imageId: String) -> Unit,
+    gridState: LazyGridState,
 ) {
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         columns = GridCells.Adaptive(minSize = 160.dp),
         contentPadding = PaddingValues(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        state = gridState,
     ) {
         items(count = breeds.itemCount, key = breeds.itemKey { it.id }) { index ->
             val breed = breeds[index]
@@ -209,7 +245,7 @@ fun CatBreedsGrid(
 @Composable
 fun CatBreedsGridPreview() {
     val breeds = List(20) { idx ->
-        CatBreedPreview(
+        CatBreedPreviewWithFavorite(
             name = "Abyssinian",
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
@@ -222,7 +258,8 @@ fun CatBreedsGridPreview() {
         CatBreedsGrid(
             breeds = breeds.collectAsMutableLazyPagingItems(),
             onFavoriteClick = { _, _ -> },
-            onCatClicked = { _, _ -> }
+            onCatClicked = { _, _ -> },
+            gridState = LazyGridState()
         )
     }
 
@@ -231,7 +268,7 @@ fun CatBreedsGridPreview() {
 @Composable
 fun CatCard(
     modifier: Modifier = Modifier,
-    breed: CatBreedPreview,
+    breed: CatBreedPreviewWithFavorite,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
     onCatClicked: (breedId: String, imageId: String) -> Unit,
 ) {
@@ -315,7 +352,7 @@ fun CatCard(
 fun CatCardPreview() {
     CatLoversTheme {
         CatCard(
-            onFavoriteClick = { _, _ -> }, breed = CatBreedPreview(
+            onFavoriteClick = { _, _ -> }, breed = CatBreedPreviewWithFavorite(
                 name = "Abyssinian",
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 imageId = "0XYvRd7oD",

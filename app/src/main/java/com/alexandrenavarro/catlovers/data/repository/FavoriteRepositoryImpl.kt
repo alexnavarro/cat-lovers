@@ -7,6 +7,7 @@ import com.alexandrenavarro.catlovers.data.network.Result
 import com.alexandrenavarro.catlovers.data.network.model.toEntity
 import com.alexandrenavarro.catlovers.domain.model.FavoriteBreed
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FavoriteRepositoryImpl @Inject constructor(
@@ -59,9 +60,14 @@ class FavoriteRepositoryImpl @Inject constructor(
                     favoriteDao.insertAll(result.data.map { it.toEntity() })
                 }
             }
-            else -> { /* Here I would call crashlytics to log the error */ }
+
+            else -> { /* Here I would call crashlytics to log the error */
+            }
         }
     }
+
+    override fun observeFavorites(): Flow<Set<String>> =
+        favoriteDao.observeFavorites().map { it.toSet() }
 
     private suspend inline fun executeLocalOperation(
         block: suspend () -> Unit

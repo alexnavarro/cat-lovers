@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.inc
 
 
 sealed class CatBreedDetailUiState {

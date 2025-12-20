@@ -40,4 +40,7 @@ interface FavoriteDao {
 
     @Query("DELETE FROM favorites")
     suspend fun clearAll()
+
+    @Query("SELECT image_id FROM favorites")
+    fun observeFavorites(): Flow<List<String>>
 }

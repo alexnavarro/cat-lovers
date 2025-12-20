@@ -10,22 +10,19 @@ import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 
 @Dao
 interface CatBreedsDao {
-    @Query("""
-        SELECT 
-            cat.id,
-            cat.name,
-            cat.image_url AS imageUrl,
-            cat.image_id AS imageId,
-            (f.image_id IS NOT NULL) AS isFavorite
-        FROM cat_breeds AS cat
-        LEFT JOIN favorites AS f ON cat.image_id = f.image_id
-        WHERE (:query IS NULL OR cat.name LIKE '%' || :query || '%' COLLATE NOCASE)
-        ORDER BY cat.name
-    """,
-    )
+@Query("""
+    SELECT 
+        id,
+        name,
+        image_url AS imageUrl,
+        image_id AS imageId
+    FROM cat_breeds
+    WHERE (:query IS NULL OR name LIKE '%' || :query || '%' COLLATE NOCASE)
+    ORDER BY name
+""")
     fun pagingSource(query: String?): PagingSource<Int, CatBreedPreview>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(items: List<CatBreedPreviewEntity>)
 
     @Query("DELETE FROM cat_breeds")

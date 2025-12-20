@@ -42,19 +42,31 @@ fun CatLoversApp() {
 
     NavigationSuiteScaffold(
         layoutType = if (!isOnDetailScreen) NavigationSuiteType.NavigationBar
-        else NavigationSuiteType.None, // This hides the bar
+        else NavigationSuiteType.None,
         navigationSuiteItems = {
             item(
                 icon = { Icon(Icons.Default.Home, null) },
                 label = { Text("Cats List") },
                 selected = currentDestination?.hasRoute<CatBreedsScreen>() == true,
-                onClick = { navController.navigate(CatBreedsScreen) }
+                onClick = { navController.navigate(CatBreedsScreen) {
+                    launchSingleTop = true
+                    restoreState = true
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                } }
             )
             item(
                 icon = { Icon(Icons.Default.Favorite, null) },
                 label = { Text("Favorites") },
                 selected = currentDestination?.hasRoute<Favorites>() == true,
-                onClick = { navController.navigate(Favorites) }
+                onClick = { navController.navigate(Favorites){
+                    launchSingleTop = true
+                    restoreState = true
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                } }
             )
         }
     ) {
@@ -64,7 +76,10 @@ fun CatLoversApp() {
         ) {
             composable<CatBreedsScreen> {
                 CatBreedsScreen(onCatClicked = { breedId, imageId ->
-                    navController.navigate(CatBreedDetail(breedId = breedId, imageId = imageId))
+                    navController.navigate(CatBreedDetail(breedId = breedId, imageId = imageId)){
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 })
             }
 

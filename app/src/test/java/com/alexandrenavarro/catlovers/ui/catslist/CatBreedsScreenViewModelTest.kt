@@ -16,6 +16,8 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
@@ -35,6 +37,7 @@ class CatBreedsScreenViewModelTest {
     fun `breeds flow should emit paging data from repository`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         val mockFlow = flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         every { catBreedRepository.getCatBreeds(any()) } returns mockFlow
 
@@ -54,6 +57,7 @@ class CatBreedsScreenViewModelTest {
     fun `onFavoriteClicked when adding favorite and remote success emits FavoriteAdded`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         coEvery { favoriteRepository.addFavorite("img-1") } returns Result.Success(Unit)
 
@@ -74,6 +78,7 @@ class CatBreedsScreenViewModelTest {
     fun `onFavoriteClicked when removing favorite and remote success emits FavoriteRemoved`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         coEvery { favoriteRepository.deleteFavorite("img-2") } returns Result.Success(Unit)
 
@@ -94,6 +99,8 @@ class CatBreedsScreenViewModelTest {
     fun `onFavoriteClicked when addFavorite returns Error emits Error message`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
+
 
         coEvery { favoriteRepository.addFavorite("img-3") } returns Result.Error(Exception("Remote failure"))
 
@@ -115,6 +122,7 @@ class CatBreedsScreenViewModelTest {
     fun `onFavoriteClicked when deleteFavorite returns NetworkError emits network message`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         coEvery { catBreedRepository.getCatBreeds(any()) } returns flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         coEvery { favoriteRepository.deleteFavorite("img-4") } returns Result.NetworkError(Exception("No net"))
 
@@ -136,6 +144,7 @@ class CatBreedsScreenViewModelTest {
     fun `breeds flow should call repository with initial null query`() = runTest {
         val mockPagingData = PagingData.from(listOf<CatBreedPreview>())
         val mockFlow = flowOf(mockPagingData)
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         every { catBreedRepository.getCatBreeds(null) } returns mockFlow
 
@@ -155,6 +164,7 @@ class CatBreedsScreenViewModelTest {
     fun `setQuery updates query and calls repository with new value after debounce`() = runTest {
         val flowNull = flowOf(PagingData.from(listOf<CatBreedPreview>()))
         val flowSiamese = flowOf(PagingData.from(listOf<CatBreedPreview>()))
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         every { catBreedRepository.getCatBreeds(null) } returns flowNull
         every { catBreedRepository.getCatBreeds("siamese") } returns flowSiamese
@@ -178,6 +188,7 @@ class CatBreedsScreenViewModelTest {
     fun `setQuery blank becomes null and calls repository with null`() = runTest {
         every { catBreedRepository.getCatBreeds(null) } returns flowOf(PagingData.from(listOf()))
         every { catBreedRepository.getCatBreeds("tmp") } returns flowOf(PagingData.from(listOf()))
+        every { favoriteRepository.observeFavorites() } returns emptyFlow()
 
         val sut = CatBreedsScreenViewModel(catBreedRepository, favoriteRepository)
 

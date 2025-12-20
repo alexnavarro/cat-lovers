@@ -15,4 +15,6 @@ interface FavoriteRepository {
     fun isFavorite(imageId: String): Flow<Boolean>
 
     suspend fun syncFavorites()
+
+    fun observeFavorites(): Flow<Set<String>>
 }

@@ -4,6 +4,5 @@ data class CatBreedPreview(
     val id: String,
     val name: String,
     val imageUrl: String?,
-    val imageId: String?,
-    val isFavorite: Boolean,
+    val imageId: String?
 )

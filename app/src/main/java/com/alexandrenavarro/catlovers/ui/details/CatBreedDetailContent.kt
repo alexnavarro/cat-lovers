@@ -67,7 +67,6 @@ import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatBreedDetailScreen(
-    modifier: Modifier = Modifier,
     viewModel: CatBreedDetailScreenViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
@@ -270,7 +269,6 @@ fun ErrorState(
 fun FavoriteFab(
     isFavorite: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isFavorite) 1.2f else 1f,

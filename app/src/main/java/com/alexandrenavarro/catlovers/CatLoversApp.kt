@@ -49,11 +49,11 @@ fun CatLoversApp() {
                 label = { Text("Cats List") },
                 selected = currentDestination?.hasRoute<CatBreedsScreen>() == true,
                 onClick = { navController.navigate(CatBreedsScreen) {
-                    launchSingleTop = true
-                    restoreState = true
                     popUpTo(navController.graph.startDestinationId) {
                         saveState = true
                     }
+                    launchSingleTop = true
+                    restoreState = true
                 } }
             )
             item(
@@ -61,12 +61,13 @@ fun CatLoversApp() {
                 label = { Text("Favorites") },
                 selected = currentDestination?.hasRoute<Favorites>() == true,
                 onClick = { navController.navigate(Favorites){
-                    launchSingleTop = true
-                    restoreState = true
                     popUpTo(navController.graph.startDestinationId) {
                         saveState = true
                     }
-                } }
+                    launchSingleTop = true
+                    restoreState = true
+                    }
+                }
             )
         }
     ) {

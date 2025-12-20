@@ -2,6 +2,7 @@ package com.alexandrenavarro.catlovers.ui.catslist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.alexandrenavarro.catlovers.data.network.Result
@@ -12,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -41,17 +43,18 @@ class CatBreedsScreenViewModel @Inject constructor(
                 initialValue = emptySet()
             )
 
-    val breeds = query
+    val breeds: Flow<PagingData<CatBreedPreviewWithFavorite>> = query
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest { q ->
             catBreedRepository.getCatBreeds(q)
-                .cachedIn(viewModelScope)
-        }.combine(favorites) { pagingData, favoriteIds ->
+        }
+        .combine(favorites) { pagingData, favoriteIds ->
             pagingData.map { breed ->
                 breed.toEternalModel(favoriteIds.contains(breed.imageId))
             }
         }
+        .cachedIn(viewModelScope)
 
     private val _events = Channel<FavoriteUiEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()

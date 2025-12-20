@@ -67,6 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -75,6 +76,7 @@ import androidx.paging.compose.itemKey
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.alexandrenavarro.catlovers.domain.model.CatBreedPreview
 import com.alexandrenavarro.catlovers.ui.theme.CatLoversTheme
 import kotlinx.coroutines.flow.flowOf
 
@@ -86,6 +88,8 @@ fun CatBreedsScreen(
     onCatClicked: (breedId: String, imageId: String) -> Unit
 ) {
     val breeds = viewModel.breeds.collectAsLazyPagingItems()
+    val favorites by viewModel.favorites.collectAsStateWithLifecycle()
+
     val query by viewModel.query.collectAsState()
     val focusManager = LocalFocusManager.current
 
@@ -188,6 +192,7 @@ fun CatBreedsScreen(
                 onFavoriteClick = viewModel::onFavoriteClicked,
                 onCatClicked = onCatClicked,
                 gridState = gridState,
+                favorites = favorites,
             )
         }
 
@@ -207,7 +212,8 @@ fun CatBreedsScreen(
 @Composable
 fun CatBreedsGrid(
     modifier: Modifier = Modifier,
-    breeds: LazyPagingItems<CatBreedPreviewWithFavorite>,
+    breeds: LazyPagingItems<CatBreedPreview>,
+    favorites: Set<String>,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
     onCatClicked: (breedId: String, imageId: String) -> Unit,
     gridState: LazyGridState,
@@ -222,11 +228,15 @@ fun CatBreedsGrid(
     ) {
         items(count = breeds.itemCount, key = breeds.itemKey { it.id }) { index ->
             val breed = breeds[index]
+            val isFavorite = remember(favorites, breed?.imageId) {
+                favorites.contains(breed?.imageId)
+            }
             breed?.let { item ->
                 CatCard(
                     breed = item,
                     onFavoriteClick = onFavoriteClick,
-                    onCatClicked = onCatClicked
+                    onCatClicked = onCatClicked,
+                    isFavorite = isFavorite,
                 )
             }
         }
@@ -244,12 +254,11 @@ fun CatBreedsGrid(
 @Composable
 fun CatBreedsGridPreview() {
     val breeds = List(20) { idx ->
-        CatBreedPreviewWithFavorite(
+        CatBreedPreview(
             name = "Abyssinian",
             imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
             imageId = "0XYvRd7oD",
             id = "abys$idx",
-            isFavorite = false
         )
     }
 
@@ -258,7 +267,8 @@ fun CatBreedsGridPreview() {
             breeds = breeds.collectAsMutableLazyPagingItems(),
             onFavoriteClick = { _, _ -> },
             onCatClicked = { _, _ -> },
-            gridState = LazyGridState()
+            gridState = LazyGridState(),
+            favorites = emptySet(),
         )
     }
 
@@ -267,9 +277,10 @@ fun CatBreedsGridPreview() {
 @Composable
 fun CatCard(
     modifier: Modifier = Modifier,
-    breed: CatBreedPreviewWithFavorite,
+    breed: CatBreedPreview,
     onFavoriteClick: (imageId: String, isFavorite: Boolean) -> Unit,
     onCatClicked: (breedId: String, imageId: String) -> Unit,
+    isFavorite: Boolean,
 ) {
     Card(
         modifier = modifier.clickable { onCatClicked(breed.id, breed.imageId ?: "") },
@@ -336,8 +347,8 @@ fun CatCard(
 
                     if (breed.imageId?.isNotEmpty() == true) {
                         FavoriteButton(
-                            isFavorite = breed.isFavorite,
-                            onClick = { onFavoriteClick(breed.imageId, breed.isFavorite) }
+                            isFavorite = isFavorite,
+                            onClick = { onFavoriteClick(breed.imageId, isFavorite) }
                         )
                     }
                 }
@@ -351,14 +362,14 @@ fun CatCard(
 fun CatCardPreview() {
     CatLoversTheme {
         CatCard(
-            onFavoriteClick = { _, _ -> }, breed = CatBreedPreviewWithFavorite(
+            onFavoriteClick = { _, _ -> }, breed = CatBreedPreview(
                 name = "Abyssinian",
                 imageUrl = "https://cdn2.thecatapi.com/images/0XYvRd7oD.jpg",
                 imageId = "0XYvRd7oD",
                 id = "abys",
-                isFavorite = false
             ),
-            onCatClicked = { _, _ -> }
+            onCatClicked = { _, _ -> },
+            isFavorite = true
         )
     }
 
